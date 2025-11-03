@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function Timer() {
   const [minutes, setMinutes] = useState(25);
+  const [hours, setHours] = useState(0);
   const [seconds, setSeconds] = useState(0);
   const [timeLeft, setTimeLeft] = useState(1500000); // in milliseconds
   const [isRunning, setIsRunning] = useState(false);
@@ -74,7 +75,7 @@ export default function Timer() {
   };
 
   const handleSetTime = () => {
-    const totalMilliseconds = (minutes * 60 + seconds) * 1000;
+    const totalMilliseconds = (hours * 3600 + minutes * 60 + seconds) * 1000;
     setTimeLeft(totalMilliseconds);
     setIsRunning(false);
     setIsComplete(false);
@@ -82,12 +83,13 @@ export default function Timer() {
 
   useEffect(() => {
     handleSetTime();
-  }, [minutes, seconds]);
+  }, [hours, minutes, seconds]);
 
-  const displayMinutes = Math.floor(timeLeft / 60000);
+  const displayHours = Math.floor(timeLeft / 3600000);
+  const displayMinutes = Math.floor((timeLeft % 3600000) / 60000);
   const displaySeconds = Math.floor((timeLeft % 60000) / 1000);
 
-  const totalTime = (minutes * 60 + seconds) * 1000;
+  const totalTime = (hours * 3600 + minutes * 60 + seconds) * 1000;
   const progress =
     totalTime > 0
       ? ((totalTime - timeLeft) / totalTime) * 100
@@ -96,7 +98,7 @@ export default function Timer() {
   return (
     <div className="w-full max-w-md">
       {/* Timer Display Card */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-10">
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-6">
         {/* Progress Circle */}
         <div className="relative mx-auto mb-6" style={{ width: '620px', height: '620px' }}>
           <svg
@@ -205,12 +207,12 @@ export default function Timer() {
               y="128"
               textAnchor="middle"
               dominantBaseline="middle"
-              fontSize="60"
+              fontSize="40"
               fill="white"
               fontFamily="monospace"
               filter="url(#softGlow)"
             >
-              {String(displayMinutes).padStart(2, "0")}:
+              {String(displayHours).padStart(2, "0")}:{String(displayMinutes).padStart(2, "0")}:
               {String(displaySeconds).padStart(2, "0")}
             </text>
             {isComplete && (
@@ -237,16 +239,17 @@ export default function Timer() {
             {!isSettingsOpen ? (
               <motion.div
                 key="timer-controls"
-                className="flex items-center justify-center gap-4"
-                initial={false}
-                animate={{ opacity: 1, x: 0 }}
+                className="flex items-center justify-center"
+                style={{ marginTop: '-1rem' }}
+                initial={{ opacity: 0, x: -50, y: -16 }}
+                animate={{ opacity: 1, x: 0, y: -16 }}
                 exit={{ opacity: 0, x: -50 }}
               >
                 <motion.button
                   layout
                   onClick={isRunning ? handlePause : handleStart}
-                  className="rounded-md bg-gradient-to-br from-[#C5A8FF] to-[#B095F9] hover:from-[#B895FF] hover:to-[#A382F0] text-white shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center"
-                  style={{ width: '140px', height: '70px' }}
+                  className="rounded-2xl bg-gradient-to-br from-[#C5A8FF] to-[#B095F9] hover:from-[#B895FF] hover:to-[#A382F0] shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center"
+                  style={{ width: '130px', height: '65px', borderRadius: '1.5rem' }}
                 >
                   <AnimatePresence mode="wait">
                     <motion.span
@@ -254,18 +257,20 @@ export default function Timer() {
                       initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
-                      className="text-xl drop-shadow-lg"
-                    >
-                      {isRunning ? "Pause" : "Start"}
+                      className="text-3xl drop-shadow-lg text-white"
+                      style={{ color: 'white', fontSize: '1.5rem' }}
+                    >{isRunning ? "Pause" : "Start"}
                     </motion.span>
                   </AnimatePresence>
                 </motion.button>
 
+                <div style={{ width: '1rem' }} />
+
                 <motion.button
                   layout
                   onClick={isRunning ? handleReset : () => setIsSettingsOpen(true)}
-                  className="rounded-md bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] hover:from-[#95B8FF] hover:to-[#7CA8F0] text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
-                  style={{ width: '140px', height: '70px' }}
+                  className="rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] hover:from-[#95B8FF] hover:to-[#7CA8F0] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+                  style={{ width: '130px', height: '65px', borderRadius: '1.5rem' }}
                 >
                   <AnimatePresence mode="wait">
                     <motion.span
@@ -273,7 +278,8 @@ export default function Timer() {
                       initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
-                      className="text-xl drop-shadow-lg"
+                      className="text-3xl drop-shadow-lg text-white"
+                      style={{ color: 'white', fontSize: '1.5rem' }}
                     >
                       {isRunning ? "Reset" : "Settings"}
                     </motion.span>
@@ -283,35 +289,122 @@ export default function Timer() {
             ) : (
               <motion.div
                 key="settings-controls"
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, x: 50, y: -16 }}
+                animate={{ opacity: 1, x: 0, y: -16 }}
                 exit={{ opacity: 0, x: 50 }}
-                className="flex items-center justify-center gap-4"
+                className="flex items-center justify-center"
+                style={{ marginTop: '-1rem' }}
               >
-                <div className="flex flex-col items-center">
-                  <label className="text-sm">Minutes</label>
+                <div
+                  className="rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] shadow-lg p-2 flex flex-col justify-between relative"
+                  style={{ width: '150px', height: '90px', borderRadius: '1.5rem' }}
+                >
+                  <label className="text-white text-sm text-center w-full">Hours</label>
+                  <input
+                    type="number"
+                    value={hours}
+                    onChange={(e) => setHours(parseInt(e.target.value))}
+                    className="w-1/2 mx-auto text-center bg-transparent border-b-2 border-white/50 focus:outline-none text-white text-2xl font-bold"
+                  />
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex flex-col gap-1">
+                    <button
+                      onClick={() => setHours(hours + 1)}
+                      className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M7.247 4.86l-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => setHours(hours > 0 ? hours - 1 : 0)}
+                      className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M7.247 11.14l-4.796-5.481c-.566-.647-.106-1.659.753-1.659h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ width: '1rem' }} />
+
+                <div
+                  className="rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] shadow-lg p-2 flex flex-col justify-between relative"
+                  style={{ width: '150px', height: '90px', borderRadius: '1.5rem' }}
+                >
+                  <label className="text-white text-sm text-center w-full">Minutes</label>
                   <input
                     type="number"
                     value={minutes}
                     onChange={(e) => setMinutes(parseInt(e.target.value))}
-                    className="w-20 text-center bg-transparent border-b-2 border-white/50 focus:outline-none focus:border-white"
+                    className="w-1/2 mx-auto text-center bg-transparent border-b-2 border-white/50 focus:outline-none text-white text-2xl font-bold"
                   />
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex flex-col gap-1">
+                    <button
+                      onClick={() => setMinutes(minutes + 1)}
+                      className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M7.247 4.86l-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => setMinutes(minutes > 0 ? minutes - 1 : 0)}
+                      className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M7.247 11.14l-4.796-5.481c-.566-.647-.106-1.659.753-1.659h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                      </svg>
+                    </button>
+                  </div>
                 </div>
-                <div className="flex flex-col items-center">
-                  <label className="text-sm">Seconds</label>
+
+                <div style={{ width: '1rem' }} />
+
+                <div
+                  className="rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] shadow-lg p-2 flex flex-col justify-between relative"
+                  style={{ width: '150px', height: '90px', borderRadius: '1.5rem' }}
+                >
+                  <label className="text-white text-sm text-center w-full">Seconds</label>
                   <input
                     type="number"
                     value={seconds}
                     onChange={(e) => setSeconds(parseInt(e.target.value))}
-                    className="w-20 text-center bg-transparent border-b-2 border-white/50 focus:outline-none focus:border-white"
+                    className="w-1/2 mx-auto text-center bg-transparent border-b-2 border-white/50 focus:outline-none text-white text-2xl font-bold"
                   />
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex flex-col gap-1">
+                    <button
+                      onClick={() => setSeconds(seconds + 1)}
+                      className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M7.247 4.86l-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => setSeconds(seconds > 0 ? seconds - 1 : 0)}
+                      className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M7.247 11.14l-4.796-5.481c-.566-.647-.106-1.659.753-1.659h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                      </svg>
+                    </button>
+                  </div>
                 </div>
+
+                <div style={{ width: '1rem' }} />
+
                 <button
                   onClick={() => setIsSettingsOpen(false)}
-                  className="rounded-md bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] hover:from-[#95B8FF] hover:to-[#7CA8F0] text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
-                  style={{ width: '140px', height: '70px' }}
+                  className="rounded-md bg-gradient-to-br from-[#C5A8FF] to-[#B095F9] hover:from-[#B895FF] hover:to-[#A382F0] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+                  style={{ width: '130px', height: '65px', borderRadius: '1.5rem' }}
                 >
-                  Done
+                  <motion.span
+                    className="text-3xl drop-shadow-lg text-white"
+                    style={{ color: 'white', fontSize: '1.5rem' }}
+                  >
+                    Done
+                  </motion.span>
                 </button>
               </motion.div>
             )}
