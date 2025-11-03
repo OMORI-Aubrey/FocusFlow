@@ -1,11 +1,23 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+/**
+ * Timer.jsx (수정본)
+ *
+ * 주요 변경점:
+ * - Settings 패널: label(시간/분/초) 상단, 입력란은 아래만 밑줄(언더라인)으로 변경
+ * - 입력 시 즉시 타이머(timeLeft)에 반영되도록 useEffect 연결
+ * - 화살표(증감) 버튼을 오른쪽에 통합된 블록 형태로 재디자인
+ * - 입력값 NaN 방지 및 범위(clamp) 적용
+ */
+
 export default function Timer() {
-  const [minutes, setMinutes] = useState(25);
   const [hours, setHours] = useState(0);
+  const [minutes, setMinutes] = useState(25);
   const [seconds, setSeconds] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(1500000); // in milliseconds
+
+  // timeLeft는 밀리초 단위
+  const [timeLeft, setTimeLeft] = useState(() => (hours * 3600 + minutes * 60 + seconds) * 1000);
   const [isRunning, setIsRunning] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [waveOffset, setWaveOffset] = useState(0);
@@ -14,7 +26,7 @@ export default function Timer() {
   const intervalRef = useRef(null);
   const animationRef = useRef(null);
 
-  // Wave animation
+  // animate wave when running
   useEffect(() => {
     const animate = () => {
       setWaveOffset((prev) => (prev + 1) % 360);
@@ -32,6 +44,7 @@ export default function Timer() {
     };
   }, [isRunning]);
 
+  // Timer ticking - use 1s or 50ms step? keep 50ms smoothness as original
   useEffect(() => {
     if (isRunning && timeLeft > 0) {
       intervalRef.current = setInterval(() => {
@@ -57,6 +70,19 @@ export default function Timer() {
     };
   }, [isRunning, timeLeft]);
 
+  // Helper: clamp values
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+  // When hours/minutes/seconds change, immediately update timeLeft (live preview)
+  useEffect(() => {
+    const totalMilliseconds = (Number(hours || 0) * 3600 + Number(minutes || 0) * 60 + Number(seconds || 0)) * 1000;
+    setTimeLeft(totalMilliseconds);
+    // stop running while user edits
+    setIsRunning(false);
+    setIsComplete(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hours, minutes, seconds]);
+
   const handleStart = () => {
     if (timeLeft > 0) {
       setIsRunning(true);
@@ -71,70 +97,62 @@ export default function Timer() {
   const handleReset = () => {
     setIsRunning(false);
     setIsComplete(false);
-    setTimeLeft((minutes * 60 + seconds) * 1000);
+    const total = (hours * 3600 + minutes * 60 + seconds) * 1000;
+    setTimeLeft(total);
   };
 
-  const handleSetTime = () => {
-    const totalMilliseconds = (hours * 3600 + minutes * 60 + seconds) * 1000;
-    setTimeLeft(totalMilliseconds);
-    setIsRunning(false);
-    setIsComplete(false);
-  };
-
-  useEffect(() => {
-    handleSetTime();
-  }, [hours, minutes, seconds]);
-
+  // display values from timeLeft
   const displayHours = Math.floor(timeLeft / 3600000);
   const displayMinutes = Math.floor((timeLeft % 3600000) / 60000);
   const displaySeconds = Math.floor((timeLeft % 60000) / 1000);
 
   const totalTime = (hours * 3600 + minutes * 60 + seconds) * 1000;
-  const progress =
-    totalTime > 0
-      ? ((totalTime - timeLeft) / totalTime) * 100
-      : 0;
+  const progress = totalTime > 0 ? ((totalTime - timeLeft) / totalTime) * 100 : 0;
+
+  // Input change handlers that guard against NaN and apply clamps
+  const onHoursChange = (value) => {
+    const n = parseInt(value);
+    setHours(isNaN(n) ? 0 : Math.max(0, n));
+  };
+  const onMinutesChange = (value) => {
+    const n = parseInt(value);
+    setMinutes(isNaN(n) ? 0 : clamp(n, 0, 59));
+  };
+  const onSecondsChange = (value) => {
+    const n = parseInt(value);
+    setSeconds(isNaN(n) ? 0 : clamp(n, 0, 59));
+  };
+
+  // Arrow click handlers (increment/decrement)
+  const incHours = () => setHours((h) => Math.max(0, h + 1));
+  const decHours = () => setHours((h) => Math.max(0, h - 1));
+  const incMinutes = () => setMinutes((m) => clamp(m + 1, 0, 59));
+  const decMinutes = () => setMinutes((m) => clamp(m - 1, 0, 59));
+  const incSeconds = () => setSeconds((s) => clamp(s + 1, 0, 59));
+  const decSeconds = () => setSeconds((s) => clamp(s - 1, 0, 59));
 
   return (
     <div className="w-full max-w-md">
       {/* Timer Display Card */}
       <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-6">
         {/* Progress Circle */}
-        <div className="relative mx-auto mb-6" style={{ width: '620px', height: '620px' }}>
-          <svg
-            className="w-full h-full"
-            viewBox="0 0 256 256"
-          >
+        <div className="relative mx-auto mb-6" style={{ width: "620px", height: "620px" }}>
+          <svg className="w-full h-full" viewBox="0 0 256 256">
             <defs>
               {/* Pastel purple gradient from bottom to top */}
-              <linearGradient
-                id="fillGradient"
-                x1="0%"
-                y1="100%"
-                x2="0%"
-                y2="0%"
-              >
+              <linearGradient id="fillGradient" x1="0%" y1="100%" x2="0%" y2="0%">
                 <stop offset="0%" stopColor="#FFA8C5" />
                 <stop offset="50%" stopColor="#C5A8FF" />
                 <stop offset="100%" stopColor="#E5D4FF" />
               </linearGradient>
               {/* Sky blue background */}
-              <linearGradient
-                id="gradientBg"
-                x1="0%"
-                y1="0%"
-                x2="0%"
-                y2="100%"
-              >
+              <linearGradient id="gradientBg" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#E3F2FD" />
                 <stop offset="50%" stopColor="#BBDEFB" />
                 <stop offset="100%" stopColor="#90CAF9" />
               </linearGradient>
               <filter id="softGlow">
-                <feGaussianBlur
-                  stdDeviation="2"
-                  result="coloredBlur"
-                />
+                <feGaussianBlur stdDeviation="2" result="coloredBlur" />
                 <feMerge>
                   <feMergeNode in="coloredBlur" />
                   <feMergeNode in="SourceGraphic" />
@@ -147,22 +165,12 @@ export default function Timer() {
                     M 0,256
                     L 0,${256 - (256 * progress) / 100 + 5}
                     ${Array.from({ length: 30 }, (_, i) => {
-                      const x = (256 / 30) * (i + 1);
-                      const baseY =
-                        256 - (256 * progress) / 100;
-                      const wave1 =
-                        Math.sin(
-                          (i / 30) * Math.PI * 4 +
-                            (waveOffset * Math.PI) / 180,
-                        ) * 4;
-                      const wave2 =
-                        Math.cos(
-                          (i / 30) * Math.PI * 6 +
-                            ((waveOffset * Math.PI) / 180) *
-                              0.7,
-                        ) * 2;
-                      return `L ${x},${baseY + wave1 + wave2}`;
-                    }).join(" ")}
+                    const x = (256 / 30) * (i + 1);
+                    const baseY = 256 - (256 * progress) / 100;
+                    const wave1 = Math.sin((i / 30) * Math.PI * 4 + (waveOffset * Math.PI) / 180) * 4;
+                    const wave2 = Math.cos((i / 30) * Math.PI * 6 + ((waveOffset * Math.PI) / 180) * 0.7) * 2;
+                    return `L ${x},${baseY + wave1 + wave2}`;
+                  }).join(" ")}
                     L 256,${256 - (256 * progress) / 100 + 5}
                     L 256,256
                     L 0,256
@@ -173,12 +181,7 @@ export default function Timer() {
             </defs>
 
             {/* Background circle - Sky blue */}
-            <circle
-              cx="128"
-              cy="128"
-              r="110"
-              fill="url(#gradientBg)"
-            />
+            <circle cx="128" cy="128" r="110" fill="url(#gradientBg)" />
 
             {/* Water fill effect - Pastel purple gradient filling from bottom */}
             <circle
@@ -191,15 +194,7 @@ export default function Timer() {
             />
 
             {/* Subtle outer border */}
-            <circle
-              cx="128"
-              cy="128"
-              r="110"
-              fill="none"
-              stroke="white"
-              strokeWidth="2"
-              opacity="0.3"
-            />
+            <circle cx="128" cy="128" r="110" fill="none" stroke="white" strokeWidth="2" opacity="0.3" />
 
             {/* Time Display directly in SVG */}
             <text
@@ -240,7 +235,7 @@ export default function Timer() {
               <motion.div
                 key="timer-controls"
                 className="flex items-center justify-center"
-                style={{ marginTop: '-1rem' }}
+                style={{ marginTop: "-1rem" }}
                 initial={{ opacity: 0, x: -50, y: -16 }}
                 animate={{ opacity: 1, x: 0, y: -16 }}
                 exit={{ opacity: 0, x: -50 }}
@@ -249,7 +244,7 @@ export default function Timer() {
                   layout
                   onClick={isRunning ? handlePause : handleStart}
                   className="rounded-2xl bg-gradient-to-br from-[#C5A8FF] to-[#B095F9] hover:from-[#B895FF] hover:to-[#A382F0] shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center"
-                  style={{ width: '130px', height: '65px', borderRadius: '1.5rem' }}
+                  style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
                   <AnimatePresence mode="wait">
                     <motion.span
@@ -258,19 +253,20 @@ export default function Timer() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
                       className="text-3xl drop-shadow-lg text-white"
-                      style={{ color: 'white', fontSize: '1.5rem' }}
-                    >{isRunning ? "Pause" : "Start"}
+                      style={{ color: "white", fontSize: "1.5rem" }}
+                    >
+                      {isRunning ? "Pause" : "Start"}
                     </motion.span>
                   </AnimatePresence>
                 </motion.button>
 
-                <div style={{ width: '1rem' }} />
+                <div style={{ width: "1rem" }} />
 
                 <motion.button
                   layout
                   onClick={isRunning ? handleReset : () => setIsSettingsOpen(true)}
                   className="rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] hover:from-[#95B8FF] hover:to-[#7CA8F0] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
-                  style={{ width: '130px', height: '65px', borderRadius: '1.5rem' }}
+                  style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
                   <AnimatePresence mode="wait">
                     <motion.span
@@ -279,7 +275,7 @@ export default function Timer() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
                       className="text-3xl drop-shadow-lg text-white"
-                      style={{ color: 'white', fontSize: '1.5rem' }}
+                      style={{ color: "white", fontSize: "1.5rem" }}
                     >
                       {isRunning ? "Reset" : "Settings"}
                     </motion.span>
@@ -293,116 +289,126 @@ export default function Timer() {
                 animate={{ opacity: 1, x: 0, y: -16 }}
                 exit={{ opacity: 0, x: 50 }}
                 className="flex items-center justify-center"
-                style={{ marginTop: '-1rem' }}
+                style={{ marginTop: "-1rem" }}
               >
+                {/* Hours Card */}
                 <div
-                  className="rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] shadow-lg p-2 flex flex-col justify-between relative"
-                  style={{ width: '150px', height: '90px', borderRadius: '1.5rem' }}
+                  className="relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] shadow-lg p-3 flex flex-col items-center justify-center"
+                  style={{ width: "150px", height: "110px", borderRadius: "1.5rem" }}
                 >
-                  <label className="text-white text-sm text-center w-full">Hours</label>
+                  <div className="w-full text-center mb-1">
+                    <span className="text-white text-sm font-medium">Hours</span>
+                  </div>
+
+                  {/* input: underline only */}
                   <input
                     type="number"
                     value={hours}
-                    onChange={(e) => setHours(parseInt(e.target.value))}
-                    className="w-1/2 mx-auto text-center bg-transparent border-b-2 border-white/50 focus:outline-none text-white text-2xl font-bold"
+                    onChange={(e) => onHoursChange(e.target.value)}
+                    className="w-2/3 text-center bg-transparent focus:outline-none text-white text-2xl font-bold border-b-2 border-white/90 placeholder-white/60"
+                    style={{ borderRadius: 0 }}
+                    aria-label="Hours input"
                   />
-                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex flex-col gap-1">
-                    <button
-                      onClick={() => setHours(hours + 1)}
-                      className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M7.247 4.86l-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => setHours(hours > 0 ? hours - 1 : 0)}
-                      className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M7.247 11.14l-4.796-5.481c-.566-.647-.106-1.659.753-1.659h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                      </svg>
-                    </button>
-                  </div>
+                  {/* decorative space for integration with right arrow block */}
                 </div>
 
-                <div style={{ width: '1rem' }} />
+                <div style={{ width: "1rem" }} />
 
+                {/* Minutes Card */}
                 <div
-                  className="rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] shadow-lg p-2 flex flex-col justify-between relative"
-                  style={{ width: '150px', height: '90px', borderRadius: '1.5rem' }}
+                  className="relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] shadow-lg p-3 flex flex-col items-center justify-center"
+                  style={{ width: "150px", height: "110px", borderRadius: "1.5rem" }}
                 >
-                  <label className="text-white text-sm text-center w-full">Minutes</label>
+                  <div className="w-full text-center mb-1">
+                    <span className="text-white text-sm font-medium">Minutes</span>
+                  </div>
+
                   <input
                     type="number"
                     value={minutes}
-                    onChange={(e) => setMinutes(parseInt(e.target.value))}
-                    className="w-1/2 mx-auto text-center bg-transparent border-b-2 border-white/50 focus:outline-none text-white text-2xl font-bold"
+                    onChange={(e) => onMinutesChange(e.target.value)}
+                    className="w-2/3 text-center bg-transparent focus:outline-none text-white text-2xl font-bold border-b-2 border-white/90 placeholder-white/60"
+                    style={{ borderRadius: 0 }}
+                    aria-label="Minutes input"
                   />
-                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex flex-col gap-1">
-                    <button
-                      onClick={() => setMinutes(minutes + 1)}
-                      className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M7.247 4.86l-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => setMinutes(minutes > 0 ? minutes - 1 : 0)}
-                      className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M7.247 11.14l-4.796-5.481c-.566-.647-.106-1.659.753-1.659h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                      </svg>
-                    </button>
-                  </div>
                 </div>
 
-                <div style={{ width: '1rem' }} />
+                <div style={{ width: "1rem" }} />
 
+                {/* Seconds Card */}
                 <div
-                  className="rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] shadow-lg p-2 flex flex-col justify-between relative"
-                  style={{ width: '150px', height: '90px', borderRadius: '1.5rem' }}
+                  className="relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] shadow-lg p-3 flex flex-col items-center justify-center"
+                  style={{ width: "150px", height: "110px", borderRadius: "1.5rem" }}
                 >
-                  <label className="text-white text-sm text-center w-full">Seconds</label>
+                  <div className="w-full text-center mb-1">
+                    <span className="text-white text-sm font-medium">Seconds</span>
+                  </div>
+
                   <input
                     type="number"
                     value={seconds}
-                    onChange={(e) => setSeconds(parseInt(e.target.value))}
-                    className="w-1/2 mx-auto text-center bg-transparent border-b-2 border-white/50 focus:outline-none text-white text-2xl font-bold"
+                    onChange={(e) => onSecondsChange(e.target.value)}
+                    className="w-2/3 text-center bg-transparent focus:outline-none text-white text-2xl font-bold border-b-2 border-white/90 placeholder-white/60"
+                    style={{ borderRadius: 0 }}
+                    aria-label="Seconds input"
                   />
-                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex flex-col gap-1">
-                    <button
-                      onClick={() => setSeconds(seconds + 1)}
-                      className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M7.247 4.86l-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => setSeconds(seconds > 0 ? seconds - 1 : 0)}
-                      className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M7.247 11.14l-4.796-5.481c-.566-.647-.106-1.659.753-1.659h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                      </svg>
-                    </button>
-                  </div>
                 </div>
 
-                <div style={{ width: '1rem' }} />
+                {/* Right-side integrated arrow block (looks like part of the big button) */}
+                <div style={{ width: "1rem" }} />
+
+                <div
+                  className="relative rounded-2xl shadow-lg flex flex-col items-center justify-center"
+                  style={{
+                    width: "68px",
+                    height: "110px",
+                    borderRadius: "1.25rem",
+                    background: "linear-gradient(180deg,#C5A8FF,#90B5F9)",
+                    boxShadow: "0 10px 24px rgba(120,90,240,0.12)",
+                    transform: "translateX(-6px)",
+                  }}
+                >
+                  {/* Up buttons group */}
+                  <button
+                    onClick={() => {
+                      incHours();
+                    }}
+                    className="w-full h-1/2 flex items-center justify-center rounded-t-2xl hover:brightness-105 transition"
+                    aria-label="Increase hours"
+                    style={{ borderTopLeftRadius: "1.25rem", borderTopRightRadius: "1.25rem" }}
+                  >
+                    {/* consistent chevron icon */}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16">
+                      <path d="M8 5.5l4 4-1 1L8 7.5 5 10.5l-1-1 4-4z" />
+                    </svg>
+                  </button>
+
+                  <div className="w-full h-px bg-white/20" />
+
+                  {/* Down buttons group */}
+                  <button
+                    onClick={() => {
+                      decHours();
+                    }}
+                    className="w-full h-1/2 flex items-center justify-center rounded-b-2xl hover:brightness-95 transition"
+                    aria-label="Decrease hours"
+                    style={{ borderBottomLeftRadius: "1.25rem", borderBottomRightRadius: "1.25rem" }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16">
+                      <path d="M8 10.5L4 6.5l1-1L8 8.5l3-3 1 1-4 4z" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Small spacer then Done button */}
+                <div style={{ width: "1rem" }} />
 
                 <button
                   onClick={() => setIsSettingsOpen(false)}
                   className="rounded-md bg-gradient-to-br from-[#C5A8FF] to-[#B095F9] hover:from-[#B895FF] hover:to-[#A382F0] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
-                  style={{ width: '130px', height: '65px', borderRadius: '1.5rem' }}
+                  style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
-                  <motion.span
-                    className="text-3xl drop-shadow-lg text-white"
-                    style={{ color: 'white', fontSize: '1.5rem' }}
-                  >
+                  <motion.span className="text-3xl drop-shadow-lg text-white" style={{ color: "white", fontSize: "1.5rem" }}>
                     Done
                   </motion.span>
                 </button>
