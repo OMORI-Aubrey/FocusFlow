@@ -1,124 +1,323 @@
-import React, { useState, useEffect } from 'react';
-import './Timer.css';
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-const Timer = () => {
-  // ------------------
-  // 상태 변수 (State)
-  // ------------------
-
-  const [mode, setMode] = useState('focus');
-  const [focusDuration, setFocusDuration] = useState(25 * 60);
-  const [breakDuration, setBreakDuration] = useState(5 * 60);
-  const [timeLeft, setTimeLeft] = useState(focusDuration);
+export default function Timer() {
+  const [minutes, setMinutes] = useState(25);
+  const [seconds, setSeconds] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(1500000); // in milliseconds
   const [isRunning, setIsRunning] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+  const [waveOffset, setWaveOffset] = useState(0);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // ------------------
-  // 파생 상태 (Derived State)
-  // ------------------
+  const intervalRef = useRef(null);
+  const animationRef = useRef(null);
 
-  const totalDuration = mode === 'focus' ? focusDuration : breakDuration;
-  const progress = (timeLeft / totalDuration) * 100;
-
-  // ------------------
-  // 타이머 로직 (useEffect)
-  // ------------------
-
+  // Wave animation
   useEffect(() => {
-    let interval = null;
+    const animate = () => {
+      setWaveOffset((prev) => (prev + 1) % 360);
+      animationRef.current = requestAnimationFrame(animate);
+    };
 
-    if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prevTime) => prevTime - 1);
-      }, 1000);
-    } else if (timeLeft === 0) {
-      if (mode === 'focus') {
-        setMode('break');
-        setTimeLeft(breakDuration);
-      } else {
-        setMode('focus');
-        setTimeLeft(focusDuration);
-      }
-      setIsRunning(false);
+    if (isRunning) {
+      animationRef.current = requestAnimationFrame(animate);
     }
 
-    return () => clearInterval(interval);
-  }, [isRunning, timeLeft, mode, focusDuration, breakDuration]);
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [isRunning]);
 
-  // ------------------
-  // 헬퍼 함수 (Helper Functions)
-  // ------------------
+  useEffect(() => {
+    if (isRunning && timeLeft > 0) {
+      intervalRef.current = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 50) {
+            setIsRunning(false);
+            setIsComplete(true);
+            return 0;
+          }
+          return prev - 50;
+        });
+      }, 50);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    }
 
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes < 10 ? '0' : ''}${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isRunning, timeLeft]);
+
+  const handleStart = () => {
+    if (timeLeft > 0) {
+      setIsRunning(true);
+      setIsComplete(false);
+    }
   };
 
-  const startTimer = () => setIsRunning(true);
-  const pauseTimer = () => setIsRunning(false);
-  const resetTimer = () => {
+  const handlePause = () => {
     setIsRunning(false);
-    setMode('focus');
-    setTimeLeft(focusDuration);
   };
 
-  // ------------------
-  // 원형 프로그레스 바 계산
-  // ------------------
+  const handleReset = () => {
+    setIsRunning(false);
+    setIsComplete(false);
+    setTimeLeft((minutes * 60 + seconds) * 1000);
+  };
 
-  const radius = 180; // 원의 반지름 (크기 증가)
-  const strokeWidth = 15; // 선 두께 증가
-  const circumference = 2 * Math.PI * radius; // 원의 둘레
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
+  const handleSetTime = () => {
+    const totalMilliseconds = (minutes * 60 + seconds) * 1000;
+    setTimeLeft(totalMilliseconds);
+    setIsRunning(false);
+    setIsComplete(false);
+  };
 
-  // ------------------
-  // 렌더링 (JSX)
-  // ------------------
+  useEffect(() => {
+    handleSetTime();
+  }, [minutes, seconds]);
+
+  const displayMinutes = Math.floor(timeLeft / 60000);
+  const displaySeconds = Math.floor((timeLeft % 60000) / 1000);
+
+  const totalTime = (minutes * 60 + seconds) * 1000;
+  const progress =
+    totalTime > 0
+      ? ((totalTime - timeLeft) / totalTime) * 100
+      : 0;
 
   return (
-    <div className="timer-container">
-      <div className="mode-display">{mode === 'focus' ? 'Focus' : 'Break'}</div>
+    <div className="w-full max-w-md">
+      {/* Timer Display Card */}
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-10">
+        {/* Progress Circle */}
+        <div className="relative mx-auto mb-6" style={{ width: '620px', height: '620px' }}>
+          <svg
+            className="w-full h-full"
+            viewBox="0 0 256 256"
+          >
+            <defs>
+              {/* Pastel purple gradient from bottom to top */}
+              <linearGradient
+                id="fillGradient"
+                x1="0%"
+                y1="100%"
+                x2="0%"
+                y2="0%"
+              >
+                <stop offset="0%" stopColor="#FFA8C5" />
+                <stop offset="50%" stopColor="#C5A8FF" />
+                <stop offset="100%" stopColor="#E5D4FF" />
+              </linearGradient>
+              {/* Sky blue background */}
+              <linearGradient
+                id="gradientBg"
+                x1="0%"
+                y1="0%"
+                x2="0%"
+                y2="100%"
+              >
+                <stop offset="0%" stopColor="#E3F2FD" />
+                <stop offset="50%" stopColor="#BBDEFB" />
+                <stop offset="100%" stopColor="#90CAF9" />
+              </linearGradient>
+              <filter id="softGlow">
+                <feGaussianBlur
+                  stdDeviation="2"
+                  result="coloredBlur"
+                />
+                <feMerge>
+                  <feMergeNode in="coloredBlur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              {/* Clip path with wave effect */}
+              <clipPath id="waterFill">
+                <path
+                  d={`
+                    M 0,256
+                    L 0,${256 - (256 * progress) / 100 + 5}
+                    ${Array.from({ length: 30 }, (_, i) => {
+                      const x = (256 / 30) * (i + 1);
+                      const baseY =
+                        256 - (256 * progress) / 100;
+                      const wave1 =
+                        Math.sin(
+                          (i / 30) * Math.PI * 4 +
+                            (waveOffset * Math.PI) / 180,
+                        ) * 4;
+                      const wave2 =
+                        Math.cos(
+                          (i / 30) * Math.PI * 6 +
+                            ((waveOffset * Math.PI) / 180) *
+                              0.7,
+                        ) * 2;
+                      return `L ${x},${baseY + wave1 + wave2}`;
+                    }).join(" ")}
+                    L 256,${256 - (256 * progress) / 100 + 5}
+                    L 256,256
+                    L 0,256
+                    Z
+                  `}
+                />
+              </clipPath>
+            </defs>
 
-      <div className="progress-ring">
-        <svg width="400" height="400">
-          <circle
-            stroke="#2a2a4a" // 트랙 색상 변경
-            strokeWidth={strokeWidth}
-            fill="transparent"
-            r={radius}
-            cx="200"
-            cy="200"
-          />
-          <circle
-            stroke="#007bff" // 진행률 색상 변경
-            strokeWidth={strokeWidth}
-            fill="transparent"
-            r={radius}
-            cx="200"
-            cy="200"
-            style={{
-              strokeDasharray: circumference,
-              strokeDashoffset: strokeDashoffset,
-              transform: 'rotate(-90deg)',
-              transformOrigin: '50% 50%',
-              transition: 'stroke-dashoffset 0.5s linear',
-              strokeLinecap: 'round' // 선 끝을 둥글게
-            }}
-          />
-        </svg>
-        <div className="timer-display">{formatTime(timeLeft)}</div>
-      </div>
+            {/* Background circle - Sky blue */}
+            <circle
+              cx="128"
+              cy="128"
+              r="110"
+              fill="url(#gradientBg)"
+            />
 
-      <div className="timer-controls">
-        {!isRunning ? (
-          <button className="start-pause-btn" onClick={startTimer}>Start</button>
-        ) : (
-          <button className="start-pause-btn" onClick={pauseTimer}>Pause</button>
-        )}
-        <button onClick={resetTimer}>Reset</button>
+            {/* Water fill effect - Pastel purple gradient filling from bottom */}
+            <circle
+              cx="128"
+              cy="128"
+              r="110"
+              fill="url(#fillGradient)"
+              clipPath="url(#waterFill)"
+              className="transition-all duration-1000 ease-in-out"
+            />
+
+            {/* Subtle outer border */}
+            <circle
+              cx="128"
+              cy="128"
+              r="110"
+              fill="none"
+              stroke="white"
+              strokeWidth="2"
+              opacity="0.3"
+            />
+
+            {/* Time Display directly in SVG */}
+            <text
+              x="128"
+              y="128"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontSize="60"
+              fill="white"
+              fontFamily="monospace"
+              filter="url(#softGlow)"
+            >
+              {String(displayMinutes).padStart(2, "0")}:
+              {String(displaySeconds).padStart(2, "0")}
+            </text>
+            {isComplete && (
+              <text
+                x="128"
+                y="180"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontSize="20"
+                fill="white"
+                fontFamily="monospace"
+                filter="url(#softGlow)"
+                className="animate-pulse"
+              >
+                Complete! 🎉
+              </text>
+            )}
+          </svg>
+        </div>
+
+        {/* Control Buttons */}
+        <div className="flex items-center justify-center gap-4">
+          <AnimatePresence mode="wait">
+            {!isSettingsOpen ? (
+              <motion.div
+                key="timer-controls"
+                className="flex items-center justify-center gap-4"
+                initial={false}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+              >
+                <motion.button
+                  layout
+                  onClick={isRunning ? handlePause : handleStart}
+                  className="rounded-md bg-gradient-to-br from-[#C5A8FF] to-[#B095F9] hover:from-[#B895FF] hover:to-[#A382F0] text-white shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center"
+                  style={{ width: '140px', height: '70px' }}
+                >
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={isRunning ? "pause" : "start"}
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 20 }}
+                      className="text-xl drop-shadow-lg"
+                    >
+                      {isRunning ? "Pause" : "Start"}
+                    </motion.span>
+                  </AnimatePresence>
+                </motion.button>
+
+                <motion.button
+                  layout
+                  onClick={isRunning ? handleReset : () => setIsSettingsOpen(true)}
+                  className="rounded-md bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] hover:from-[#95B8FF] hover:to-[#7CA8F0] text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+                  style={{ width: '140px', height: '70px' }}
+                >
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={isRunning ? "reset" : "settings"}
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 20 }}
+                      className="text-xl drop-shadow-lg"
+                    >
+                      {isRunning ? "Reset" : "Settings"}
+                    </motion.span>
+                  </AnimatePresence>
+                </motion.button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="settings-controls"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 50 }}
+                className="flex items-center justify-center gap-4"
+              >
+                <div className="flex flex-col items-center">
+                  <label className="text-sm">Minutes</label>
+                  <input
+                    type="number"
+                    value={minutes}
+                    onChange={(e) => setMinutes(parseInt(e.target.value))}
+                    className="w-20 text-center bg-transparent border-b-2 border-white/50 focus:outline-none focus:border-white"
+                  />
+                </div>
+                <div className="flex flex-col items-center">
+                  <label className="text-sm">Seconds</label>
+                  <input
+                    type="number"
+                    value={seconds}
+                    onChange={(e) => setSeconds(parseInt(e.target.value))}
+                    className="w-20 text-center bg-transparent border-b-2 border-white/50 focus:outline-none focus:border-white"
+                  />
+                </div>
+                <button
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="rounded-md bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] hover:from-[#95B8FF] hover:to-[#7CA8F0] text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+                  style={{ width: '140px', height: '70px' }}
+                >
+                  Done
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
-};
-
-export default Timer;
+}
