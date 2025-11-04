@@ -333,7 +333,7 @@ export default function Timer() {
                 >
                   <AnimatePresence mode="wait">
                     <motion.span
-                      key={isRunning ? "pause" : "start"}
+                      key={isRunning ? "일시중지" : "시작"}
                       initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
@@ -341,7 +341,7 @@ export default function Timer() {
                       // "Start" 버튼 텍스트 색상
                       style={{ color: "white", fontSize: "1.5rem" }}
                     >
-                      {isRunning ? "Pause" : "Start"}
+                      {isRunning ? "일시중지" : "시작"}
                     </motion.span>
                   </AnimatePresence>
                 </motion.button>
@@ -357,7 +357,7 @@ export default function Timer() {
                 >
                   <AnimatePresence mode="wait">
                     <motion.span
-                      key={isRunning ? "reset" : "settings"}
+                      key={isRunning ? "초기화" : "시간 설정"}
                       initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
@@ -365,7 +365,7 @@ export default function Timer() {
                       // "Settings" 버튼 텍스트 색상
                       style={{ color: "white", fontSize: "1.5rem" }}
                     >
-                      {isRunning ? "Reset" : "Settings"}
+                      {isRunning ? "초기화" : "시간 설정"}
                     </motion.span>
                   </AnimatePresence>
                 </motion.button>
@@ -388,7 +388,7 @@ export default function Timer() {
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
                   {/* 시간 설정 카드 텍스트 색상 */}
-                  <div className="text-white text-base font-medium">Hours</div>
+                  <div className="text-white text-base font-medium">시간</div>
                   <div className="text-white text-3xl font-bold">{selectedUnit === "hours" && inputValue ? inputValue : hours}</div>
                 </div>
 
@@ -403,7 +403,7 @@ export default function Timer() {
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
                   {/* 분 설정 카드 텍스트 색상 */}
-                  <div className="text-white text-base font-medium">Minutes</div>
+                  <div className="text-white text-base font-medium">분</div>
                   <div className="text-white text-3xl font-bold">{selectedUnit === "minutes" && inputValue ? inputValue : minutes}</div>
                 </div>
 
@@ -418,7 +418,7 @@ export default function Timer() {
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
                   {/* 초 설정 카드 텍스트 색상 */}
-                  <div className="text-white text-base font-medium">Seconds</div>
+                  <div className="text-white text-base font-medium">초</div>
                   <div className="text-white text-3xl font-bold">{selectedUnit === "seconds" && inputValue ? inputValue : seconds}</div>
                 </div>
                 <div style={{ width: "1rem" }} />
@@ -475,7 +475,7 @@ export default function Timer() {
                 >
                   {/* "Done" 버튼 텍스트 색상 */}
                   <motion.span className="text-3xl drop-shadow-lg text-white" style={{ color: "white", fontSize: "1.5rem" }}>
-                    Done
+                    완료
                   </motion.span>
                 </button>
               </motion.div>
