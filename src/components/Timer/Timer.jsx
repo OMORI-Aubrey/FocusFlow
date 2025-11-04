@@ -22,7 +22,7 @@ export default function Timer() {
   const [isComplete, setIsComplete] = useState(false);
   const [waveOffset, setWaveOffset] = useState(0);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [selectedUnit, setSelectedUnit] = useState("hours");
+  const [selectedUnit, setSelectedUnit] = useState("minutes");
   const [inputValue, setInputValue] = useState("");
   const inputTimeoutRef = useRef(null);
 
@@ -223,13 +223,13 @@ export default function Timer() {
         <div className="relative mx-auto mb-6" style={{ width: "580px", height: "580px" }}>
           <svg className="w-full h-full" viewBox="0 0 256 256">
             <defs>
-              {/* Pastel purple gradient from bottom to top */}
+              {/* 타이머 진행률을 채우는 그라데이션 색상 */}
               <linearGradient id="fillGradient" x1="0%" y1="100%" x2="0%" y2="0%">
                 <stop offset="0%" stopColor="#FFA8C5" />
                 <stop offset="50%" stopColor="#C5A8FF" />
                 <stop offset="100%" stopColor="#E5D4FF" />
               </linearGradient>
-              {/* Sky blue background */}
+              {/* 타이머 배경 그라데이션 색상 */}
               <linearGradient id="gradientBg" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#E3F2FD" />
                 <stop offset="50%" stopColor="#BBDEFB" />
@@ -264,10 +264,10 @@ export default function Timer() {
               </clipPath>
             </defs>
 
-            {/* Background circle - Sky blue */}
+            {/* 타이머 배경 원 색상 */}
             <circle cx="128" cy="128" r="110" fill="url(#gradientBg)" />
 
-            {/* Water fill effect - Pastel purple gradient filling from bottom */}
+            {/* 타이머 진행률을 채우는 원 색상 */}
             <circle
               cx="128"
               cy="128"
@@ -277,10 +277,10 @@ export default function Timer() {
               className="transition-all duration-1000 ease-in-out"
             />
 
-            {/* Subtle outer border */}
+            {/* 타이머 테두리 색상 */}
             <circle cx="128" cy="128" r="110" fill="none" stroke="white" strokeWidth="2" opacity="0.3" />
 
-            {/* Time Display directly in SVG */}
+            {/* 타이머 시간 텍스트 색상 */}
             <text
               x="128"
               y="128"
@@ -327,6 +327,7 @@ export default function Timer() {
                 <motion.button
                   layout
                   onClick={isRunning ? handlePause : handleStart}
+                  // "Start" 버튼 배경색 (그라데이션)
                   className="rounded-2xl bg-gradient-to-br from-[#C5A8FF] to-[#B095F9] hover:from-[#B895FF] hover:to-[#A382F0] shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center border-none select-none"
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
@@ -337,6 +338,7 @@ export default function Timer() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
                       className="text-3xl drop-shadow-lg text-white"
+                      // "Start" 버튼 텍스트 색상
                       style={{ color: "white", fontSize: "1.5rem" }}
                     >
                       {isRunning ? "Pause" : "Start"}
@@ -349,6 +351,7 @@ export default function Timer() {
                 <motion.button
                   layout
                   onClick={isRunning ? handleReset : () => setIsSettingsOpen(true)}
+                  // "Settings" 버튼 배경색 (그라데이션)
                   className="rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] hover:from-[#95B8FF] hover:to-[#7CA8F0] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center border-none select-none"
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
@@ -359,6 +362,7 @@ export default function Timer() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
                       className="text-3xl drop-shadow-lg text-white"
+                      // "Settings" 버튼 텍스트 색상
                       style={{ color: "white", fontSize: "1.5rem" }}
                     >
                       {isRunning ? "Reset" : "Settings"}
@@ -375,39 +379,45 @@ export default function Timer() {
                 className="flex items-center justify-center"
                 style={{ marginTop: "-1rem" }}
               >
-                {/* Hours Card */}
+                {/* 시간 설정 카드 */}
                 <div
                   onClick={() => setSelectedUnit("hours")}
                   onDoubleClick={() => setHours(0)}
+                  // 시간 설정 카드 배경색 (그라데이션)
                   className={`relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 select-none ${selectedUnit === "hours" ? "shadow-[0_0_15px_5px_rgba(192,132,252,0.7)]" : "shadow-lg"}`}
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
+                  {/* 시간 설정 카드 텍스트 색상 */}
                   <div className="text-white text-base font-medium">Hours</div>
                   <div className="text-white text-3xl font-bold">{selectedUnit === "hours" && inputValue ? inputValue : hours}</div>
                 </div>
 
                 <div style={{ width: "1rem" }} />
 
-                {/* Minutes Card */}
+                {/* 분 설정 카드 */}
                 <div
                   onClick={() => setSelectedUnit("minutes")}
                   onDoubleClick={() => setMinutes(0)}
+                  // 분 설정 카드 배경색 (그라데이션)
                   className={`relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 select-none ${selectedUnit === "minutes" ? "shadow-[0_0_15px_5px_rgba(192,132,252,0.7)]" : "shadow-lg"}`}
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
+                  {/* 분 설정 카드 텍스트 색상 */}
                   <div className="text-white text-base font-medium">Minutes</div>
                   <div className="text-white text-3xl font-bold">{selectedUnit === "minutes" && inputValue ? inputValue : minutes}</div>
                 </div>
 
                 <div style={{ width: "1rem" }} />
 
-                {/* Seconds Card */}
+                {/* 초 설정 카드 */}
                 <div
                   onClick={() => setSelectedUnit("seconds")}
                   onDoubleClick={() => setSeconds(0)}
+                  // 초 설정 카드 배경색 (그라데이션)
                   className={`relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 select-none ${selectedUnit === "seconds" ? "shadow-[0_0_15px_5px_rgba(192,132,252,0.7)]" : "shadow-lg"}`}
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
+                  {/* 초 설정 카드 텍스트 색상 */}
                   <div className="text-white text-base font-medium">Seconds</div>
                   <div className="text-white text-3xl font-bold">{selectedUnit === "seconds" && inputValue ? inputValue : seconds}</div>
                 </div>
@@ -419,19 +429,20 @@ export default function Timer() {
                     width: "50px",
                     height: "65px",
                     borderRadius: "1.5rem",
+                    // 화살표 버튼 배경색 (그라데이션)
                     background: "linear-gradient(180deg,#C5A8FF,#90B5F9)",
                     boxShadow: "0 10px 24px rgba(120,90,240,0.12)",
                     transform: "translateX(-6px)",
                   }}
                 >
-                  {/* Up buttons group */}
+                  {/* 위쪽 화살표 버튼 */}
                   <button
                     onClick={handleIncrement}
                     className="w-full h-1/2 flex items-center justify-center rounded-t-2xl hover:brightness-105 transition border-none select-none"
                     aria-label="Increase value"
                     style={{ borderTopLeftRadius: "1.5rem", borderTopRightRadius: "1.5rem" }}
                   >
-                    {/* consistent chevron icon */}
+                    {/* 화살표 아이콘 색상 */}
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#333333" viewBox="0 0 16 16">
                       <path d="M8 5.5l4 4-1 1L8 7.5 5 10.5l-1-1 4-4z" />
                     </svg>
@@ -439,27 +450,30 @@ export default function Timer() {
 
                   <div className="w-full h-px bg-white/20" />
 
-                  {/* Down buttons group */}
+                  {/* 아래쪽 화살표 버튼 */}
                   <button
                     onClick={handleDecrement}
                     className="w-full h-1/2 flex items-center justify-center rounded-b-2xl hover:brightness-95 transition border-none select-none"
                     aria-label="Decrease value"
                     style={{ borderBottomLeftRadius: "1.5rem", borderBottomRightRadius: "1.5rem" }}
                   >
+                    {/* 화살표 아이콘 색상 */}
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#333333" viewBox="0 0 16 16">
                       <path d="M8 10.5L4 6.5l1-1L8 8.5l3-3 1 1-4 4z" />
                     </svg>
                   </button>
                 </div>
 
-                {/* Small spacer then Done button */}
+                {/* "Done" 버튼 */}
                 <div style={{ width: "1rem" }} />
 
                 <button
                   onClick={() => setIsSettingsOpen(false)}
+                  // "Done" 버튼 배경색 (그라데이션)
                   className="rounded-md bg-gradient-to-br from-[#C5A8FF] to-[#B095F9] hover:from-[#B895FF] hover:to-[#A382F0] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center border-none select-none"
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
+                  {/* "Done" 버튼 텍스트 색상 */}
                   <motion.span className="text-3xl drop-shadow-lg text-white" style={{ color: "white", fontSize: "1.5rem" }}>
                     Done
                   </motion.span>
