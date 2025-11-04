@@ -22,6 +22,9 @@ export default function Timer() {
   const [isComplete, setIsComplete] = useState(false);
   const [waveOffset, setWaveOffset] = useState(0);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [selectedUnit, setSelectedUnit] = useState("hours");
+  const [inputValue, setInputValue] = useState("");
+  const inputTimeoutRef = useRef(null);
 
   const intervalRef = useRef(null);
   const animationRef = useRef(null);
@@ -123,6 +126,26 @@ export default function Timer() {
     setSeconds(isNaN(n) ? 0 : clamp(n, 0, 59));
   };
 
+  const handleIncrement = () => {
+    if (selectedUnit === "hours") {
+      incHours();
+    } else if (selectedUnit === "minutes") {
+      incMinutes();
+    } else {
+      incSeconds();
+    }
+  };
+
+  const handleDecrement = () => {
+    if (selectedUnit === "hours") {
+      decHours();
+    } else if (selectedUnit === "minutes") {
+      decMinutes();
+    } else {
+      decSeconds();
+    }
+  };
+
   // Arrow click handlers (increment/decrement)
   const incHours = () => setHours((h) => Math.max(0, h + 1));
   const decHours = () => setHours((h) => Math.max(0, h - 1));
@@ -131,12 +154,73 @@ export default function Timer() {
   const incSeconds = () => setSeconds((s) => clamp(s + 1, 0, 59));
   const decSeconds = () => setSeconds((s) => clamp(s - 1, 0, 59));
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!isSettingsOpen) return;
+
+      if (e.key >= "0" && e.key <= "9") {
+        setInputValue((prev) => prev + e.key);
+      } else if (e.key === "Backspace") {
+        setInputValue((prev) => prev.slice(0, -1));
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isSettingsOpen]);
+
+  useEffect(() => {
+    if (inputTimeoutRef.current) {
+      clearTimeout(inputTimeoutRef.current);
+    }
+
+    if (inputValue) {
+      inputTimeoutRef.current = setTimeout(() => {
+        const newTime = parseInt(inputValue, 10);
+        if (isNaN(newTime)) {
+          setInputValue("");
+          return;
+        }
+
+        if (selectedUnit === "hours") {
+          setHours(newTime);
+        } else if (selectedUnit === "minutes") {
+          const overflowHours = Math.floor(newTime / 60);
+          const newMinutes = newTime % 60;
+          setHours((h) => h + overflowHours);
+          setMinutes(newMinutes);
+        } else if (selectedUnit === "seconds") {
+          const overflowMinutes = Math.floor(newTime / 60);
+          const newSeconds = newTime % 60;
+          setSeconds(newSeconds);
+
+          const totalMinutes = minutes + overflowMinutes;
+          const overflowHours = Math.floor(totalMinutes / 60);
+          const finalMinutes = totalMinutes % 60;
+          setHours((h) => h + overflowHours);
+          setMinutes(finalMinutes);
+        }
+
+        setInputValue("");
+      }, 1000);
+    }
+
+    return () => {
+      if (inputTimeoutRef.current) {
+        clearTimeout(inputTimeoutRef.current);
+      }
+    };
+  }, [inputValue, selectedUnit, hours, minutes, seconds]);
+
   return (
     <div className="w-full max-w-md">
       {/* Timer Display Card */}
       <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-6">
         {/* Progress Circle */}
-        <div className="relative mx-auto mb-6" style={{ width: "620px", height: "620px" }}>
+        <div className="relative mx-auto mb-6" style={{ width: "580px", height: "580px" }}>
           <svg className="w-full h-full" viewBox="0 0 256 256">
             <defs>
               {/* Pastel purple gradient from bottom to top */}
@@ -222,7 +306,7 @@ export default function Timer() {
                 filter="url(#softGlow)"
                 className="animate-pulse"
               >
-                Complete! 🎉
+                Complete!
               </text>
             )}
           </svg>
@@ -243,7 +327,7 @@ export default function Timer() {
                 <motion.button
                   layout
                   onClick={isRunning ? handlePause : handleStart}
-                  className="rounded-2xl bg-gradient-to-br from-[#C5A8FF] to-[#B095F9] hover:from-[#B895FF] hover:to-[#A382F0] shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center"
+                  className="rounded-2xl bg-gradient-to-br from-[#C5A8FF] to-[#B095F9] hover:from-[#B895FF] hover:to-[#A382F0] shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center border-none select-none"
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
                   <AnimatePresence mode="wait">
@@ -265,7 +349,7 @@ export default function Timer() {
                 <motion.button
                   layout
                   onClick={isRunning ? handleReset : () => setIsSettingsOpen(true)}
-                  className="rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] hover:from-[#95B8FF] hover:to-[#7CA8F0] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+                  className="rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] hover:from-[#95B8FF] hover:to-[#7CA8F0] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center border-none select-none"
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
                   <AnimatePresence mode="wait">
@@ -293,76 +377,48 @@ export default function Timer() {
               >
                 {/* Hours Card */}
                 <div
-                  className="relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] shadow-lg p-3 flex flex-col items-center justify-center"
-                  style={{ width: "150px", height: "110px", borderRadius: "1.5rem" }}
+                  onClick={() => setSelectedUnit("hours")}
+                  onDoubleClick={() => setHours(0)}
+                  className={`relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 select-none ${selectedUnit === "hours" ? "shadow-[0_0_15px_5px_rgba(192,132,252,0.7)]" : "shadow-lg"}`}
+                  style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
-                  <div className="w-full text-center mb-1">
-                    <span className="text-white text-sm font-medium">Hours</span>
-                  </div>
-
-                  {/* input: underline only */}
-                  <input
-                    type="number"
-                    value={hours}
-                    onChange={(e) => onHoursChange(e.target.value)}
-                    className="w-2/3 text-center bg-transparent focus:outline-none text-white text-2xl font-bold border-b-2 border-white/90 placeholder-white/60"
-                    style={{ borderRadius: 0 }}
-                    aria-label="Hours input"
-                  />
-                  {/* decorative space for integration with right arrow block */}
+                  <div className="text-white text-base font-medium">Hours</div>
+                  <div className="text-white text-3xl font-bold">{selectedUnit === "hours" && inputValue ? inputValue : hours}</div>
                 </div>
 
                 <div style={{ width: "1rem" }} />
 
                 {/* Minutes Card */}
                 <div
-                  className="relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] shadow-lg p-3 flex flex-col items-center justify-center"
-                  style={{ width: "150px", height: "110px", borderRadius: "1.5rem" }}
+                  onClick={() => setSelectedUnit("minutes")}
+                  onDoubleClick={() => setMinutes(0)}
+                  className={`relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 select-none ${selectedUnit === "minutes" ? "shadow-[0_0_15px_5px_rgba(192,132,252,0.7)]" : "shadow-lg"}`}
+                  style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
-                  <div className="w-full text-center mb-1">
-                    <span className="text-white text-sm font-medium">Minutes</span>
-                  </div>
-
-                  <input
-                    type="number"
-                    value={minutes}
-                    onChange={(e) => onMinutesChange(e.target.value)}
-                    className="w-2/3 text-center bg-transparent focus:outline-none text-white text-2xl font-bold border-b-2 border-white/90 placeholder-white/60"
-                    style={{ borderRadius: 0 }}
-                    aria-label="Minutes input"
-                  />
+                  <div className="text-white text-base font-medium">Minutes</div>
+                  <div className="text-white text-3xl font-bold">{selectedUnit === "minutes" && inputValue ? inputValue : minutes}</div>
                 </div>
 
                 <div style={{ width: "1rem" }} />
 
                 {/* Seconds Card */}
                 <div
-                  className="relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] shadow-lg p-3 flex flex-col items-center justify-center"
-                  style={{ width: "150px", height: "110px", borderRadius: "1.5rem" }}
+                  onClick={() => setSelectedUnit("seconds")}
+                  onDoubleClick={() => setSeconds(0)}
+                  className={`relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 select-none ${selectedUnit === "seconds" ? "shadow-[0_0_15px_5px_rgba(192,132,252,0.7)]" : "shadow-lg"}`}
+                  style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
-                  <div className="w-full text-center mb-1">
-                    <span className="text-white text-sm font-medium">Seconds</span>
-                  </div>
-
-                  <input
-                    type="number"
-                    value={seconds}
-                    onChange={(e) => onSecondsChange(e.target.value)}
-                    className="w-2/3 text-center bg-transparent focus:outline-none text-white text-2xl font-bold border-b-2 border-white/90 placeholder-white/60"
-                    style={{ borderRadius: 0 }}
-                    aria-label="Seconds input"
-                  />
+                  <div className="text-white text-base font-medium">Seconds</div>
+                  <div className="text-white text-3xl font-bold">{selectedUnit === "seconds" && inputValue ? inputValue : seconds}</div>
                 </div>
-
-                {/* Right-side integrated arrow block (looks like part of the big button) */}
                 <div style={{ width: "1rem" }} />
 
                 <div
                   className="relative rounded-2xl shadow-lg flex flex-col items-center justify-center"
                   style={{
-                    width: "68px",
-                    height: "110px",
-                    borderRadius: "1.25rem",
+                    width: "50px",
+                    height: "65px",
+                    borderRadius: "1.5rem",
                     background: "linear-gradient(180deg,#C5A8FF,#90B5F9)",
                     boxShadow: "0 10px 24px rgba(120,90,240,0.12)",
                     transform: "translateX(-6px)",
@@ -370,15 +426,13 @@ export default function Timer() {
                 >
                   {/* Up buttons group */}
                   <button
-                    onClick={() => {
-                      incHours();
-                    }}
-                    className="w-full h-1/2 flex items-center justify-center rounded-t-2xl hover:brightness-105 transition"
-                    aria-label="Increase hours"
-                    style={{ borderTopLeftRadius: "1.25rem", borderTopRightRadius: "1.25rem" }}
+                    onClick={handleIncrement}
+                    className="w-full h-1/2 flex items-center justify-center rounded-t-2xl hover:brightness-105 transition border-none select-none"
+                    aria-label="Increase value"
+                    style={{ borderTopLeftRadius: "1.5rem", borderTopRightRadius: "1.5rem" }}
                   >
                     {/* consistent chevron icon */}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#333333" viewBox="0 0 16 16">
                       <path d="M8 5.5l4 4-1 1L8 7.5 5 10.5l-1-1 4-4z" />
                     </svg>
                   </button>
@@ -387,14 +441,12 @@ export default function Timer() {
 
                   {/* Down buttons group */}
                   <button
-                    onClick={() => {
-                      decHours();
-                    }}
-                    className="w-full h-1/2 flex items-center justify-center rounded-b-2xl hover:brightness-95 transition"
-                    aria-label="Decrease hours"
-                    style={{ borderBottomLeftRadius: "1.25rem", borderBottomRightRadius: "1.25rem" }}
+                    onClick={handleDecrement}
+                    className="w-full h-1/2 flex items-center justify-center rounded-b-2xl hover:brightness-95 transition border-none select-none"
+                    aria-label="Decrease value"
+                    style={{ borderBottomLeftRadius: "1.5rem", borderBottomRightRadius: "1.5rem" }}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#333333" viewBox="0 0 16 16">
                       <path d="M8 10.5L4 6.5l1-1L8 8.5l3-3 1 1-4 4z" />
                     </svg>
                   </button>
@@ -405,7 +457,7 @@ export default function Timer() {
 
                 <button
                   onClick={() => setIsSettingsOpen(false)}
-                  className="rounded-md bg-gradient-to-br from-[#C5A8FF] to-[#B095F9] hover:from-[#B895FF] hover:to-[#A382F0] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+                  className="rounded-md bg-gradient-to-br from-[#C5A8FF] to-[#B095F9] hover:from-[#B895FF] hover:to-[#A382F0] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center border-none select-none"
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
                   <motion.span className="text-3xl drop-shadow-lg text-white" style={{ color: "white", fontSize: "1.5rem" }}>
