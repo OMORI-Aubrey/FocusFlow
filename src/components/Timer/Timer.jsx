@@ -24,6 +24,7 @@ export default function Timer() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState("minutes");
   const [inputValue, setInputValue] = useState("");
+  const [changeDirection, setChangeDirection] = useState("none");
   const inputTimeoutRef = useRef(null);
 
   const intervalRef = useRef(null);
@@ -127,6 +128,7 @@ export default function Timer() {
   };
 
   const handleIncrement = () => {
+    setChangeDirection("increment");
     if (selectedUnit === "hours") {
       incHours();
     } else if (selectedUnit === "minutes") {
@@ -137,6 +139,7 @@ export default function Timer() {
   };
 
   const handleDecrement = () => {
+    setChangeDirection("decrement");
     if (selectedUnit === "hours") {
       decHours();
     } else if (selectedUnit === "minutes") {
@@ -213,14 +216,21 @@ export default function Timer() {
         clearTimeout(inputTimeoutRef.current);
       }
     };
-  }, [inputValue, selectedUnit, hours, minutes, seconds]);
+  }, [inputValue, selectedUnit, minutes]);
+
+  useEffect(() => {
+    if (changeDirection !== "none") {
+      const timer = setTimeout(() => setChangeDirection("none"), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [hours, minutes, seconds, changeDirection]);
 
   return (
     <div className="w-full max-w-md">
       {/* Timer Display Card */}
       <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-6">
         {/* Progress Circle */}
-        <div className="relative mx-auto mb-6" style={{ width: "580px", height: "580px" }}>
+        <div className="relative mx-auto mb-6" style={{ width: "550px", height: "550px" }}>
           <svg className="w-full h-full" viewBox="0 0 256 256">
             <defs>
               {/* 타이머 진행률을 채우는 그라데이션 색상 */}
@@ -319,9 +329,8 @@ export default function Timer() {
               <motion.div
                 key="timer-controls"
                 className="flex items-center justify-center"
-                style={{ marginTop: "-1rem" }}
-                initial={{ opacity: 0, x: -50, y: -16 }}
-                animate={{ opacity: 1, x: 0, y: -16 }}
+                initial={{ opacity: 0, x: -50, y: 0 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
                 exit={{ opacity: 0, x: -50 }}
               >
                 <motion.button
@@ -373,11 +382,11 @@ export default function Timer() {
             ) : (
               <motion.div
                 key="settings-controls"
-                initial={{ opacity: 0, x: 50, y: -16 }}
-                animate={{ opacity: 1, x: 0, y: -16 }}
+                initial={{ opacity: 0, x: 50, y: 0 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
                 exit={{ opacity: 0, x: 50 }}
                 className="flex items-center justify-center"
-                style={{ marginTop: "-1rem" }}
+                style={{ marginTop: "0rem" }}
               >
                 {/* 시간 설정 카드 */}
                 <div
@@ -389,7 +398,18 @@ export default function Timer() {
                 >
                   {/* 시간 설정 카드 텍스트 색상 */}
                   <div className="text-white text-base font-medium">시간</div>
-                  <div className="text-white text-3xl font-bold">{selectedUnit === "hours" && inputValue ? inputValue : hours}</div>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={hours}
+                      initial={{ y: changeDirection === "increment" ? 20 : -20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: changeDirection === "increment" ? -20 : 20, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-white text-3xl font-bold"
+                    >
+                      {selectedUnit === "hours" && inputValue ? inputValue : hours}
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
 
                 <div style={{ width: "1rem" }} />
@@ -404,7 +424,18 @@ export default function Timer() {
                 >
                   {/* 분 설정 카드 텍스트 색상 */}
                   <div className="text-white text-base font-medium">분</div>
-                  <div className="text-white text-3xl font-bold">{selectedUnit === "minutes" && inputValue ? inputValue : minutes}</div>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={minutes}
+                      initial={{ y: changeDirection === "increment" ? 20 : -20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: changeDirection === "increment" ? -20 : 20, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-white text-3xl font-bold"
+                    >
+                      {selectedUnit === "minutes" && inputValue ? inputValue : minutes}
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
 
                 <div style={{ width: "1rem" }} />
@@ -419,7 +450,18 @@ export default function Timer() {
                 >
                   {/* 초 설정 카드 텍스트 색상 */}
                   <div className="text-white text-base font-medium">초</div>
-                  <div className="text-white text-3xl font-bold">{selectedUnit === "seconds" && inputValue ? inputValue : seconds}</div>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={seconds}
+                      initial={{ y: changeDirection === "increment" ? 20 : -20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: changeDirection === "increment" ? -20 : 20, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-white text-3xl font-bold"
+                    >
+                      {selectedUnit === "seconds" && inputValue ? inputValue : seconds}
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
                 <div style={{ width: "1rem" }} />
 
