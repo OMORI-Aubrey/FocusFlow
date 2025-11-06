@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 
-export default function Timer() {
-  const [hours, setHours] = useState(0);
-  const [minutes, setMinutes] = useState(25);
-  const [seconds, setSeconds] = useState(0);
+export default function Timer({ hours, minutes, seconds, setHours, setMinutes, setSeconds }) {
+
+
+
 
   // timeLeft는 밀리초 단위
   const [timeLeft, setTimeLeft] = useState(() => (hours * 3600 + minutes * 60 + seconds) * 1000);
