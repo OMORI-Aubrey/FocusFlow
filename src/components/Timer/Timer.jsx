@@ -91,6 +91,13 @@ export default function Timer() {
     if (timeLeft > 0) {
       setIsRunning(true);
       setIsComplete(false);
+    } else { // This happens when timer is complete (timeLeft is 0)
+      const total = (hours * 3600 + minutes * 60 + seconds) * 1000;
+      if (total > 0) { // Only start if there is a total time set
+        setTimeLeft(total);
+        setIsRunning(true);
+        setIsComplete(false);
+      }
     }
   };
 
@@ -357,7 +364,7 @@ export default function Timer() {
 
                 <motion.button
                   layout
-                  onClick={isRunning ? handleReset : () => setIsSettingsOpen(true)}
+                  onClick={isRunning ? handleReset : () => { if (isComplete) { const total = (hours * 3600 + minutes * 60 + seconds) * 1000; setTimeLeft(total); setIsComplete(false); } setIsSettingsOpen(true); }}
                   // "Settings" 버튼 배경색 (그라데이션)
                   className="rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] hover:from-[#95B8FF] hover:to-[#7CA8F0] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center border-none select-none"
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
