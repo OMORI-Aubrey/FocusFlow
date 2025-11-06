@@ -226,9 +226,8 @@ export default function Timer() {
   }, [hours, minutes, seconds, changeDirection]);
 
   return (
-    <div className="w-full max-w-md">
-      {/* Timer Display Card */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-6">
+    <div className="flex flex-col items-center" style={{ marginLeft: "-450px" }}>
+
         {/* Progress Circle */}
         <div className="relative mx-auto mb-6" style={{ width: "550px", height: "550px" }}>
           <svg className="w-full h-full" viewBox="0 0 256 256">
@@ -401,9 +400,9 @@ export default function Timer() {
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={hours}
-                      initial={{ y: changeDirection === "increment" ? 20 : -20, opacity: 0 }}
+                      initial={{ y: changeDirection === "increment" ? 10 : -10, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: changeDirection === "increment" ? -20 : 20, opacity: 0 }}
+                      exit={{ y: changeDirection === "increment" ? -10 : 10, opacity: 0 }}
                       transition={{ duration: 0.3 }}
                       className="text-white text-3xl font-bold"
                     >
@@ -427,9 +426,9 @@ export default function Timer() {
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={minutes}
-                      initial={{ y: changeDirection === "increment" ? 20 : -20, opacity: 0 }}
+                      initial={{ y: changeDirection === "increment" ? 10 : -10, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: changeDirection === "increment" ? -20 : 20, opacity: 0 }}
+                      exit={{ y: changeDirection === "increment" ? -10 : 10, opacity: 0 }}
                       transition={{ duration: 0.3 }}
                       className="text-white text-3xl font-bold"
                     >
@@ -453,9 +452,9 @@ export default function Timer() {
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={seconds}
-                      initial={{ y: changeDirection === "increment" ? 20 : -20, opacity: 0 }}
+                      initial={{ y: changeDirection === "increment" ? 10 : -10, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: changeDirection === "increment" ? -20 : 20, opacity: 0 }}
+                      exit={{ y: changeDirection === "increment" ? -10 : 10, opacity: 0 }}
                       transition={{ duration: 0.3 }}
                       className="text-white text-3xl font-bold"
                     >
@@ -525,6 +524,5 @@ export default function Timer() {
           </AnimatePresence>
         </div>
       </div>
-    </div>
   );
 }
