@@ -111,7 +111,7 @@ export default function Timer() {
   const displaySeconds = Math.floor((timeLeft % 60000) / 1000);
 
   const totalTime = (hours * 3600 + minutes * 60 + seconds) * 1000;
-  const progress = totalTime > 0 ? ((totalTime - timeLeft) / totalTime) * 100 : 0;
+  const progress = isComplete ? 100 : (isRunning && totalTime > 0 ? ((totalTime - timeLeft) / totalTime) * 100 : 0);
 
   // Input change handlers that guard against NaN and apply clamps
   const onHoursChange = (value) => {
@@ -257,11 +257,11 @@ export default function Timer() {
                   d={`
                     M 0,256
                     L 0,${256 - (256 * progress) / 100 + 5}
-                    ${Array.from({ length: 30 }, (_, i) => {
-                    const x = (256 / 30) * (i + 1);
+                    ${Array.from({ length: 20 }, (_, i) => {
+                    const x = (256 / 20) * (i + 1);
                     const baseY = 256 - (256 * progress) / 100;
-                    const wave1 = Math.sin((i / 30) * Math.PI * 4 + (waveOffset * Math.PI) / 180) * 4;
-                    const wave2 = Math.cos((i / 30) * Math.PI * 6 + ((waveOffset * Math.PI) / 180) * 0.7) * 2;
+                    const wave1 = Math.sin((i / 20) * Math.PI * 4 + (waveOffset * Math.PI) / 180) * 4;
+                    const wave2 = Math.cos((i / 20) * Math.PI * 6 + ((waveOffset * Math.PI) / 180) * 0.7) * 2;
                     return `L ${x},${baseY + wave1 + wave2}`;
                   }).join(" ")}
                     L 256,${256 - (256 * progress) / 100 + 5}
@@ -283,7 +283,6 @@ export default function Timer() {
               r="110"
               fill="url(#fillGradient)"
               clipPath="url(#waterFill)"
-              className="transition-all duration-1000 ease-in-out"
             />
 
             {/* 타이머 테두리 색상 */}
