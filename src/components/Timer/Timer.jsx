@@ -1,15 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-/**
- * Timer.jsx (수정본)
- *
- * 주요 변경점:
- * - Settings 패널: label(시간/분/초) 상단, 입력란은 아래만 밑줄(언더라인)으로 변경
- * - 입력 시 즉시 타이머(timeLeft)에 반영되도록 useEffect 연결
- * - 화살표(증감) 버튼을 오른쪽에 통합된 블록 형태로 재디자인
- * - 입력값 NaN 방지 및 범위(clamp) 적용
- */
 
 export default function Timer() {
   const [hours, setHours] = useState(0);
