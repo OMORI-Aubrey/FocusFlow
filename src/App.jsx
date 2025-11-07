@@ -6,21 +6,15 @@ import ModeSwitch from './components/ModeSwitch/ModeSwitch';
 
 function App() {
   const [isFocusMode, setIsFocusMode] = useState(true);
-  const [hours, setHours] = useState(0);
-  const [minutes, setMinutes] = useState(25);
-  const [seconds, setSeconds] = useState(0);
+  const [focusTime, setFocusTime] = useState({ h: 0, m: 25, s: 0 });
+  const [restTime, setRestTime] = useState({ h: 0, m: 5, s: 0 });
 
-  useEffect(() => {
-    if (isFocusMode) {
-      setHours(0);
-      setMinutes(25);
-      setSeconds(0);
-    } else {
-      setHours(0);
-      setMinutes(5);
-      setSeconds(0);
-    }
-  }, [isFocusMode]);
+  const { h, m, s } = isFocusMode ? focusTime : restTime;
+  const setCurrentTime = isFocusMode ? setFocusTime : setRestTime;
+
+  const setHours = (newHours) => setCurrentTime(prev => ({ ...prev, h: Number(newHours) }));
+  const setMinutes = (newMinutes) => setCurrentTime(prev => ({ ...prev, m: Number(newMinutes) }));
+  const setSeconds = (newSeconds) => setCurrentTime(prev => ({ ...prev, s: Number(newSeconds) }));
 
   return (
     <div className="App">
@@ -30,9 +24,9 @@ function App() {
       <Timer
         isFocusMode={isFocusMode}
         setIsFocusMode={setIsFocusMode}
-        hours={hours}
-        minutes={minutes}
-        seconds={seconds}
+        hours={h}
+        minutes={m}
+        seconds={s}
         setHours={setHours}
         setMinutes={setMinutes}
         setSeconds={setSeconds}

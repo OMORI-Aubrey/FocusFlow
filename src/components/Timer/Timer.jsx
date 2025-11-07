@@ -4,9 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, seconds, setHours, setMinutes, setSeconds }) {
 
-
-
-
   // timeLeft는 밀리초 단위
   const [timeLeft, setTimeLeft] = useState(() => (hours * 3600 + minutes * 60 + seconds) * 1000);
   const [isRunning, setIsRunning] = useState(false);
@@ -84,12 +81,17 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [hours, minutes, seconds]);
   const handleStart = () => {
+    // If timer is complete, switch modes and auto-start
+    if (isComplete) {
+      isSwitchingMode.current = true;
+      setIsFocusMode(prev => !prev);
+      return; // Explicitly exit
+    }
+
+    // If timer is paused and has time left, resume
     if (timeLeft > 0) {
       setIsRunning(true);
       setIsComplete(false);
-    } else { // This happens when timer is complete (timeLeft is 0)
-      isSwitchingMode.current = true;
-      setIsFocusMode(prev => !prev);
     }
   };
 
@@ -158,12 +160,12 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
   };
 
   // Arrow click handlers (increment/decrement)
-  const incHours = () => setHours((h) => Math.max(0, h + 1));
-  const decHours = () => setHours((h) => Math.max(0, h - 1));
-  const incMinutes = () => setMinutes((m) => clamp(m + 1, 0, 59));
-  const decMinutes = () => setMinutes((m) => clamp(m - 1, 0, 59));
-  const incSeconds = () => setSeconds((s) => clamp(s + 1, 0, 59));
-  const decSeconds = () => setSeconds((s) => clamp(s - 1, 0, 59));
+  const incHours = () => setHours(Math.max(0, hours + 1));
+  const decHours = () => setHours(Math.max(0, hours - 1));
+  const incMinutes = () => setMinutes(clamp(minutes + 1, 0, 59));
+  const decMinutes = () => setMinutes(clamp(minutes - 1, 0, 59));
+  const incSeconds = () => setSeconds(clamp(seconds + 1, 0, 59));
+  const decSeconds = () => setSeconds(clamp(seconds - 1, 0, 59));
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -201,7 +203,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
         } else if (selectedUnit === "minutes") {
           const overflowHours = Math.floor(newTime / 60);
           const newMinutes = newTime % 60;
-          setHours((h) => h + overflowHours);
+          setHours(hours + overflowHours);
           setMinutes(newMinutes);
         } else if (selectedUnit === "seconds") {
           const overflowMinutes = Math.floor(newTime / 60);
@@ -211,7 +213,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
           const totalMinutes = minutes + overflowMinutes;
           const overflowHours = Math.floor(totalMinutes / 60);
           const finalMinutes = totalMinutes % 60;
-          setHours((h) => h + overflowHours);
+          setHours(hours + overflowHours);
           setMinutes(finalMinutes);
         }
 
