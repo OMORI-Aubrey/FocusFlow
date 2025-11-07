@@ -24,30 +24,29 @@ function App() {
   return (
     <div className="App">
       <div className="absolute top-4 left-4">
-        <div
+        <motion.div
           onClick={() => setIsFocusMode(!isFocusMode)}
-          className={`relative flex items-center w-40 h-12 rounded-full p-1 cursor-pointer transition-colors duration-300 ${
-            isFocusMode ? 'bg-purple-400' : 'bg-blue-300'
-          }`}
+          className="relative flex items-center w-32 h-12 rounded-full p-1 cursor-pointer"
+          initial={false}
+          animate={{
+            background: isFocusMode
+              ? 'linear-gradient(to right, #E5D4FF, #C5A8FF)' // purple-500 to pink-500
+              : 'linear-gradient(to right, #90CAF9, #BBDEFB)', // blue-400 to cyan-400
+          }}
+          transition={{ duration: 0.8 }}
         >
           <motion.div
             layout
-            transition={{ type: 'spring', stiffness: 700, damping: 30 }}
-            className="absolute w-10 h-10 bg-white rounded-full shadow-md"
+            transition={{ type: 'tween', duration: 0.5 }}
+            className="absolute w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-lg font-bold text-gray-400"
             style={{
               left: isFocusMode ? '0.25rem' : 'auto',
               right: isFocusMode ? 'auto' : '0.25rem',
             }}
-          />
-          <div className="flex justify-around w-full">
-            <span className={`font-bold z-10 ${isFocusMode ? 'text-white' : 'text-gray-600'}`}>
-              Focus
-            </span>
-            <span className={`font-bold z-10 ${!isFocusMode ? 'text-white' : 'text-gray-600'}`}>
-              Rest
-            </span>
-          </div>
-        </div>
+          >
+            {isFocusMode ? 'F' : 'R'}
+          </motion.div>
+        </motion.div>
       </div>
       <Timer
         hours={hours}
@@ -57,7 +56,7 @@ function App() {
         setMinutes={setMinutes}
         setSeconds={setSeconds}
       />
-    </div>
+    </div >
   );
 }
 
