@@ -28,6 +28,8 @@ function App() {
         <ModeSwitch isFocusMode={isFocusMode} setIsFocusMode={setIsFocusMode} />
       </div>
       <Timer
+        isFocusMode={isFocusMode}
+        setIsFocusMode={setIsFocusMode}
         hours={hours}
         minutes={minutes}
         seconds={seconds}

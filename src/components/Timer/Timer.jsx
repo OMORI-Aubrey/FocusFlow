@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 
-export default function Timer({ hours, minutes, seconds, setHours, setMinutes, setSeconds }) {
+export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, seconds, setHours, setMinutes, setSeconds }) {
 
 
 
@@ -17,6 +17,7 @@ export default function Timer({ hours, minutes, seconds, setHours, setMinutes, s
   const [inputValue, setInputValue] = useState("");
   const [changeDirection, setChangeDirection] = useState("none");
   const inputTimeoutRef = useRef(null);
+  const isSwitchingMode = useRef(false);
 
   const intervalRef = useRef(null);
   const animationRef = useRef(null);
@@ -68,27 +69,27 @@ export default function Timer({ hours, minutes, seconds, setHours, setMinutes, s
   // Helper: clamp values
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
-  // When hours/minutes/seconds change, immediately update timeLeft (live preview)
-  useEffect(() => {
-    const totalMilliseconds = (Number(hours || 0) * 3600 + Number(minutes || 0) * 60 + Number(seconds || 0)) * 1000;
-    setTimeLeft(totalMilliseconds);
-    // stop running while user edits
-    setIsRunning(false);
-    setIsComplete(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hours, minutes, seconds]);
-
+      // When hours/minutes/seconds change, immediately update timeLeft (live preview)
+      useEffect(() => {
+        const totalMilliseconds = (Number(hours || 0) * 3600 + Number(minutes || 0) * 60 + Number(seconds || 0)) * 1000;
+        setTimeLeft(totalMilliseconds);
+        setIsComplete(false);
+  
+        if (isSwitchingMode.current) {
+          setIsRunning(true); // Auto-start the timer
+          isSwitchingMode.current = false; // Reset the flag
+        } else {
+          setIsRunning(false); // Stop running for manual edits
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [hours, minutes, seconds]);
   const handleStart = () => {
     if (timeLeft > 0) {
       setIsRunning(true);
       setIsComplete(false);
     } else { // This happens when timer is complete (timeLeft is 0)
-      const total = (hours * 3600 + minutes * 60 + seconds) * 1000;
-      if (total > 0) { // Only start if there is a total time set
-        setTimeLeft(total);
-        setIsRunning(true);
-        setIsComplete(false);
-      }
+      isSwitchingMode.current = true;
+      setIsFocusMode(prev => !prev);
     }
   };
 
@@ -109,7 +110,16 @@ export default function Timer({ hours, minutes, seconds, setHours, setMinutes, s
   const displaySeconds = Math.floor((timeLeft % 60000) / 1000);
 
   const totalTime = (hours * 3600 + minutes * 60 + seconds) * 1000;
-  const progress = isComplete ? 100 : (isRunning && totalTime > 0 ? ((totalTime - timeLeft) / totalTime) * 100 : 0);
+
+  let progress;
+
+  if (isSettingsOpen) {
+    progress = isFocusMode ? 0 : 100;
+  } else {
+    progress = isFocusMode
+      ? (isComplete ? 100 : (isRunning && totalTime > 0 ? ((totalTime - timeLeft) / totalTime) * 100 : 0))
+      : (isComplete ? 0 : (totalTime > 0 ? (timeLeft / totalTime) * 100 : 100));
+  }
 
   // Input change handlers that guard against NaN and apply clamps
   const onHoursChange = (value) => {
@@ -232,15 +242,15 @@ export default function Timer({ hours, minutes, seconds, setHours, setMinutes, s
             <defs>
               {/* 타이머 진행률을 채우는 그라데이션 색상 */}
               <linearGradient id="fillGradient" x1="0%" y1="100%" x2="0%" y2="0%">
-                <stop offset="0%" stopColor="#FFA8C5" />
-                <stop offset="50%" stopColor="#C5A8FF" />
-                <stop offset="100%" stopColor="#E5D4FF" />
+              <stop offset="0%" stopColor="#dcc8fe" />
+              <stop offset="50%" stopColor="#dcc7fc" />
+              <stop offset="100%" stopColor="#d7c8fa" />
               </linearGradient>
               {/* 타이머 배경 그라데이션 색상 */}
               <linearGradient id="gradientBg" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#E3F2FD" />
                 <stop offset="50%" stopColor="#BBDEFB" />
-                <stop offset="100%" stopColor="#90CAF9" />
+                <stop offset="100%" stopColor="#9fd2fc" />
               </linearGradient>
               <filter id="softGlow">
                 <feGaussianBlur stdDeviation="2" result="coloredBlur" />
@@ -355,7 +365,12 @@ export default function Timer({ hours, minutes, seconds, setHours, setMinutes, s
 
                 <motion.button
                   layout
-                  onClick={isRunning ? handleReset : () => { if (isComplete) { const total = (hours * 3600 + minutes * 60 + seconds) * 1000; setTimeLeft(total); setIsComplete(false); } setIsSettingsOpen(true); }}
+                  onClick={isRunning ? handleReset : () => {
+                    if (isComplete) {
+                      setIsFocusMode(prev => !prev);
+                    }
+                    setIsSettingsOpen(true);
+                  }}
                   // "Settings" 버튼 배경색 (그라데이션)
                   className="rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] hover:from-[#95B8FF] hover:to-[#7CA8F0] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center border-none select-none"
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
