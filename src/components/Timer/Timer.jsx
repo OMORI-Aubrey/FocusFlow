@@ -66,24 +66,24 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
   // Helper: clamp values
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
-      // When hours/minutes/seconds change, immediately update timeLeft (live preview)
-      useEffect(() => {
-        const totalMilliseconds = (Number(hours || 0) * 3600 + Number(minutes || 0) * 60 + Number(seconds || 0)) * 1000;
-        setTimeLeft(totalMilliseconds);
-        setIsComplete(false);
-  
-        if (isSwitchingMode.current) {
-          setIsRunning(true); // Auto-start the timer
-          isSwitchingMode.current = false; // Reset the flag
-        } else {
-          setIsRunning(false); // Stop running for manual edits
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [hours, minutes, seconds]);
-  const handleStart = () => {
+          // When hours/minutes/seconds change, immediately update timeLeft (live preview)
+          useEffect(() => {
+            const totalMilliseconds = (Number(hours || 0) * 3600 + Number(minutes || 0) * 60 + Number(seconds || 0)) * 1000;
+            setTimeLeft(totalMilliseconds);
+            setIsComplete(false);
+      
+            if (isSwitchingMode.current) {
+              setIsRunning(true); // Auto-start the timer
+              isSwitchingMode.current = false; // Reset the flag
+            } else if (isSettingsOpen) {
+              setIsRunning(false); // Stop running only when settings are open
+            }
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+          }, [hours, minutes, seconds, isSettingsOpen]);  const handleStart = () => {
     // If timer is complete, switch modes and auto-start
     if (isComplete) {
       isSwitchingMode.current = true;
+      setIsComplete(false); // Reset completion state immediately
       setIsFocusMode(prev => !prev);
       return; // Explicitly exit
     }
@@ -115,7 +115,8 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
 
   let progress;
 
-  if (isSettingsOpen) {
+  if (isSwitchingMode.current || isSettingsOpen) {
+    // While switching or in settings, lock progress to the mode's starting position.
     progress = isFocusMode ? 0 : 100;
   } else {
     progress = isFocusMode
@@ -369,6 +370,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
                   layout
                   onClick={isRunning ? handleReset : () => {
                     if (isComplete) {
+                      setIsComplete(false);
                       setIsFocusMode(prev => !prev);
                     }
                     setIsSettingsOpen(true);
