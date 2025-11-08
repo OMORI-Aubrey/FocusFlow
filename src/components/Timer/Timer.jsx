@@ -245,15 +245,15 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
             <defs>
               {/* 타이머 진행률을 채우는 그라데이션 색상 */}
               <linearGradient id="fillGradient" x1="0%" y1="100%" x2="0%" y2="0%">
-              <stop offset="0%" stopColor="#dcc8fe" />
-              <stop offset="50%" stopColor="#dcc7fc" />
-              <stop offset="100%" stopColor="#d7c8fa" />
+              <stop offset="0%" stopColor="#F0C5EE" />
+              <stop offset="50%" stopColor="#F0C5EE" />
+              <stop offset="100%" stopColor="#F3E0EE" />
               </linearGradient>
               {/* 타이머 배경 그라데이션 색상 */}
               <linearGradient id="gradientBg" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#E3F2FD" />
-                <stop offset="50%" stopColor="#BBDEFB" />
-                <stop offset="100%" stopColor="#9fd2fc" />
+              <stop offset="0%" stopColor="#DCF0F7" />
+              <stop offset="50%" stopColor="#CADFFA" />
+              <stop offset="100%" stopColor="#CADFFA" />
               </linearGradient>
               <filter id="softGlow">
                 <feGaussianBlur stdDeviation="2" result="coloredBlur" />
