@@ -252,7 +252,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
               {/* 타이머 배경 그라데이션 색상 */}
               <linearGradient id="gradientBg" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="#DCF0F7" />
-              <stop offset="50%" stopColor="#CADFFA" />
+              <stop offset="50%" stopColor="#c5ddfe" />
               <stop offset="100%" stopColor="#CADFFA" />
               </linearGradient>
               <filter id="softGlow">
