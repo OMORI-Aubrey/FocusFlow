@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 
@@ -15,6 +15,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
   const [changeDirection, setChangeDirection] = useState("none");
   const inputTimeoutRef = useRef(null);
   const isSwitchingMode = useRef(false);
+  const keyPressTimeRef = useRef(0);
 
   const intervalRef = useRef(null);
   const animationRef = useRef(null);
@@ -72,39 +73,44 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
             setTimeLeft(totalMilliseconds);
             setIsComplete(false);
       
-            if (isSwitchingMode.current) {
-              setIsRunning(true); // Auto-start the timer
-              isSwitchingMode.current = false; // Reset the flag
-            } else if (isSettingsOpen) {
+            if (isSettingsOpen) {
               setIsRunning(false); // Stop running only when settings are open
             }
             // eslint-disable-next-line react-hooks/exhaustive-deps
-          }, [hours, minutes, seconds, isSettingsOpen]);  const handleStart = () => {
-    // If timer is complete, switch modes and auto-start
-    if (isComplete) {
-      isSwitchingMode.current = true;
-      setIsComplete(false); // Reset completion state immediately
-      setIsFocusMode(prev => !prev);
-      return; // Explicitly exit
-    }
+          }, [hours, minutes, seconds, isSettingsOpen]);
 
+          useEffect(() => {
+            // Auto-start timer when switching modes
+            if (isSwitchingMode.current) {
+              setIsRunning(true);
+              isSwitchingMode.current = false;
+            }
+          }, [isFocusMode, setIsRunning]);
+          
+  const handleStart = useCallback(() => {
     // If timer is paused and has time left, resume
     if (timeLeft > 0) {
       setIsRunning(true);
       setIsComplete(false);
     }
-  };
+  }, [timeLeft, setIsRunning, setIsComplete]);
 
-  const handlePause = () => {
+  const handleModeSwitch = useCallback(() => {
+    isSwitchingMode.current = true;
+    setIsComplete(false);
+    setIsFocusMode(prev => !prev);
+  }, [setIsFocusMode, setIsComplete]);
+
+  const handlePause = useCallback(() => {
     setIsRunning(false);
-  };
+  }, [setIsRunning]);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setIsRunning(false);
     setIsComplete(false);
     const total = (hours * 3600 + minutes * 60 + seconds) * 1000;
     setTimeLeft(total);
-  };
+  }, [hours, minutes, seconds, setIsRunning, setIsComplete, setTimeLeft]);
 
   // display values from timeLeft
   const displayHours = Math.floor(timeLeft / 3600000);
@@ -277,13 +283,46 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
     const handleKeyDown = (e) => {
       if (!isSettingsOpen) return;
 
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter"].includes(e.key)) {
+        e.preventDefault();
+      }
+
       if (e.key >= "0" && e.key <= "9") {
-        // Limit input to 4 digits
         if (inputValue.length < 4) {
           setInputValue((prev) => prev + e.key);
         }
       } else if (e.key === "Backspace") {
         setInputValue((prev) => prev.slice(0, -1));
+      } else if (e.key === "ArrowUp") {
+        const now = Date.now();
+        if (now - keyPressTimeRef.current > 100) { // 100ms delay
+          handleIncrement();
+          keyPressTimeRef.current = now;
+        }
+      } else if (e.key === "ArrowDown") {
+        const now = Date.now();
+        if (now - keyPressTimeRef.current > 100) { // 100ms delay
+          handleDecrement();
+          keyPressTimeRef.current = now;
+        }
+      } else if (e.key === "ArrowRight") {
+        if (selectedUnit === "hours") {
+          setSelectedUnit("minutes");
+        } else if (selectedUnit === "minutes") {
+          setSelectedUnit("seconds");
+        } else { // seconds
+          setSelectedUnit("hours");
+        }
+      } else if (e.key === "ArrowLeft") {
+        if (selectedUnit === "hours") {
+          setSelectedUnit("seconds");
+        } else if (selectedUnit === "minutes") {
+          setSelectedUnit("hours");
+        } else { // seconds
+          setSelectedUnit("minutes");
+        }
+      } else if (e.key === "Enter") {
+        setIsSettingsOpen(false);
       }
     };
 
@@ -292,7 +331,8 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isSettingsOpen, inputValue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSettingsOpen, inputValue, selectedUnit, hours, minutes, seconds, setIsSettingsOpen]);
 
   useEffect(() => {
     if (inputTimeoutRef.current) {
@@ -364,6 +404,30 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
       return () => clearTimeout(timer);
     }
   }, [hours, minutes, seconds, changeDirection]);
+
+  useEffect(() => {
+    const handleGlobalKeyDown = (e) => {
+      // Don't interfere with settings input
+      if (isSettingsOpen) return;
+
+      if (e.code === 'Space') {
+        e.preventDefault(); // Prevent scrolling
+        if (isRunning) {
+          handlePause();
+        } else {
+          handleStart();
+        }
+      } else if (e.key === 'Escape') {
+        handleReset();
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleGlobalKeyDown);
+    };
+  }, [isRunning, isSettingsOpen, handlePause, handleStart, handleReset]);
 
   return (
     <div className="flex flex-col items-center" style={{ marginLeft: "-450px" }}>
@@ -473,14 +537,14 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
               >
                 <motion.button
                   layout
-                  onClick={isRunning ? handlePause : handleStart}
+                  onClick={isComplete ? handleModeSwitch : (isRunning ? handlePause : handleStart)}
                   // "Start" 버튼 배경색 (그라데이션)
                   className="rounded-2xl bg-gradient-to-br from-[#C5A8FF] to-[#B095F9] hover:from-[#B895FF] hover:to-[#A382F0] shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center border-none select-none"
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
                   <AnimatePresence mode="wait">
                     <motion.span
-                      key={isRunning ? "일시중지" : "시작"}
+                      key={isComplete ? "다음" : (isRunning ? "일시중지" : "시작")}
                       initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
@@ -488,7 +552,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
                       // "Start" 버튼 텍스트 색상
                       style={{ color: "white", fontSize: "1.5rem" }}
                     >
-                      {isRunning ? "일시중지" : "시작"}
+                      {isComplete ? "다음" : (isRunning ? "일시중지" : "시작")}
                     </motion.span>
                   </AnimatePresence>
                 </motion.button>
