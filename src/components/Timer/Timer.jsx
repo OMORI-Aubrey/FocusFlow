@@ -127,7 +127,15 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
   // Input change handlers that guard against NaN and apply clamps
   const onHoursChange = (value) => {
     const n = parseInt(value);
-    setHours(isNaN(n) ? 0 : Math.max(0, n));
+    if (isNaN(n)) {
+      setHours(0);
+    } else if (n >= 24) {
+      setHours(24);
+      setMinutes(0);
+      setSeconds(0);
+    } else {
+      setHours(n);
+    }
   };
   const onMinutesChange = (value) => {
     const n = parseInt(value);
@@ -161,19 +169,119 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
   };
 
   // Arrow click handlers (increment/decrement)
-  const incHours = () => setHours(Math.max(0, hours + 1));
-  const decHours = () => setHours(Math.max(0, hours - 1));
-  const incMinutes = () => setMinutes(clamp(minutes + 1, 0, 59));
-  const decMinutes = () => setMinutes(clamp(minutes - 1, 0, 59));
-  const incSeconds = () => setSeconds(clamp(seconds + 1, 0, 59));
-  const decSeconds = () => setSeconds(clamp(seconds - 1, 0, 59));
+  const incHours = () => {
+    let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+    if (totalSeconds >= 24 * 3600) {
+        setHours(0);
+        setMinutes(0);
+        setSeconds(0);
+        return;
+    }
+    totalSeconds += 3600;
+
+    if (totalSeconds > 24 * 3600) {
+        totalSeconds = 24 * 3600;
+    }
+    
+    const newHours = Math.floor(totalSeconds / 3600);
+    const remainingSeconds = totalSeconds % 3600;
+    const newMinutes = Math.floor(remainingSeconds / 60);
+    const newSeconds = remainingSeconds % 60;
+
+    setHours(newHours);
+    setMinutes(newMinutes);
+    setSeconds(newSeconds);
+  };
+  const incMinutes = () => {
+    let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+    if (totalSeconds >= 24 * 3600) return;
+    totalSeconds += 60;
+
+    if (totalSeconds > 24 * 3600) {
+        totalSeconds = 24 * 3600;
+    }
+
+    const newHours = Math.floor(totalSeconds / 3600);
+    const remainingSeconds = totalSeconds % 3600;
+    const newMinutes = Math.floor(remainingSeconds / 60);
+    const newSeconds = remainingSeconds % 60;
+
+    setHours(newHours);
+    setMinutes(newMinutes);
+    setSeconds(newSeconds);
+  };
+  const incSeconds = () => {
+    let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+    if (totalSeconds >= 24 * 3600) return;
+    totalSeconds += 1;
+    
+    const newHours = Math.floor(totalSeconds / 3600);
+    const remainingSeconds = totalSeconds % 3600;
+    const newMinutes = Math.floor(remainingSeconds / 60);
+    const newSeconds = remainingSeconds % 60;
+
+    setHours(newHours);
+    setMinutes(newMinutes);
+    setSeconds(newSeconds);
+  };
+  const decHours = () => {
+    let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+    totalSeconds -= 3600;
+    if (totalSeconds < 0) {
+        totalSeconds = 24 * 3600 + totalSeconds; // wrap around
+    }
+
+    const newHours = Math.floor(totalSeconds / 3600);
+    const remainingSeconds = totalSeconds % 3600;
+    const newMinutes = Math.floor(remainingSeconds / 60);
+    const newSeconds = remainingSeconds % 60;
+
+    setHours(newHours);
+    setMinutes(newMinutes);
+    setSeconds(newSeconds);
+  };
+  const decMinutes = () => {
+    let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+    totalSeconds -= 60;
+    if (totalSeconds < 0) {
+        totalSeconds = 24 * 3600 + totalSeconds; // wrap around
+    }
+
+    const newHours = Math.floor(totalSeconds / 3600);
+    const remainingSeconds = totalSeconds % 3600;
+    const newMinutes = Math.floor(remainingSeconds / 60);
+    const newSeconds = remainingSeconds % 60;
+
+    setHours(newHours);
+    setMinutes(newMinutes);
+    setSeconds(newSeconds);
+  };
+  const decSeconds = () => {
+    let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+    totalSeconds -= 1;
+    if (totalSeconds < 0) {
+        totalSeconds = 24 * 3600 - 1; // wrap to 23:59:59
+    }
+
+    const newHours = Math.floor(totalSeconds / 3600);
+    const remainingSeconds = totalSeconds % 3600;
+    const newMinutes = Math.floor(remainingSeconds / 60);
+    const newSeconds = remainingSeconds % 60;
+
+    setHours(newHours);
+    setMinutes(newMinutes);
+    setSeconds(newSeconds);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!isSettingsOpen) return;
 
       if (e.key >= "0" && e.key <= "9") {
-        setInputValue((prev) => prev + e.key);
+        // Limit input to 4 digits
+        if (inputValue.length < 4) {
+          setInputValue((prev) => prev + e.key);
+        }
       } else if (e.key === "Backspace") {
         setInputValue((prev) => prev.slice(0, -1));
       }
@@ -184,7 +292,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isSettingsOpen]);
+  }, [isSettingsOpen, inputValue]);
 
   useEffect(() => {
     if (inputTimeoutRef.current) {
@@ -200,22 +308,43 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
         }
 
         if (selectedUnit === "hours") {
-          setHours(newTime);
+          if (newTime >= 24) {
+            setHours(24);
+            setMinutes(0);
+            setSeconds(0);
+          } else {
+            setHours(newTime);
+          }
         } else if (selectedUnit === "minutes") {
-          const overflowHours = Math.floor(newTime / 60);
           const newMinutes = newTime % 60;
-          setHours(hours + overflowHours);
-          setMinutes(newMinutes);
+          const overflowHours = Math.floor(newTime / 60);
+          const finalHours = hours + overflowHours;
+          if (finalHours >= 24) {
+            setHours(24);
+            setMinutes(0);
+            setSeconds(0);
+          } else {
+            setHours(finalHours);
+            setMinutes(newMinutes);
+          }
         } else if (selectedUnit === "seconds") {
-          const overflowMinutes = Math.floor(newTime / 60);
           const newSeconds = newTime % 60;
-          setSeconds(newSeconds);
-
+          const overflowMinutes = Math.floor(newTime / 60);
+          
           const totalMinutes = minutes + overflowMinutes;
-          const overflowHours = Math.floor(totalMinutes / 60);
           const finalMinutes = totalMinutes % 60;
-          setHours(hours + overflowHours);
-          setMinutes(finalMinutes);
+          const overflowHours = Math.floor(totalMinutes / 60);
+          const finalHours = hours + overflowHours;
+
+          if (finalHours >= 24) {
+            setHours(24);
+            setMinutes(0);
+            setSeconds(0);
+          } else {
+            setHours(finalHours);
+            setMinutes(finalMinutes);
+            setSeconds(newSeconds);
+          }
         }
 
         setInputValue("");
@@ -227,7 +356,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
         clearTimeout(inputTimeoutRef.current);
       }
     };
-  }, [inputValue, selectedUnit, minutes]);
+  }, [inputValue, selectedUnit, hours, minutes, setHours, setMinutes, setSeconds]);
 
   useEffect(() => {
     if (changeDirection !== "none") {
