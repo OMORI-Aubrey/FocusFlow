@@ -9,8 +9,8 @@ function ModeSwitch({ isFocusMode, setIsFocusMode }) {
       initial={false}
       animate={{
         background: isFocusMode
-          ? 'linear-gradient(to right, #BBDEFB, #90CAF9)'
-          : 'linear-gradient(to right, #C5A8FF, #E5D4FF)', 
+          ? 'linear-gradient(to right, #DCF0F7, #A2BFF9)'
+          : 'linear-gradient(to right, #E2B4E2, #F3E0EE)', 
       }}
       transition={{ duration: 0.8 }}
     >
