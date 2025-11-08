@@ -408,7 +408,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
                   onClick={() => setSelectedUnit("hours")}
                   onDoubleClick={() => setHours(0)}
                   // 시간 설정 카드 배경색 (그라데이션)
-                  className={`relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 select-none ${selectedUnit === "hours" ? "shadow-[0_0_15px_5px_rgba(192,132,252,0.7)]" : "shadow-lg"}`}
+                  className={`relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 select-none ${selectedUnit === "hours" ? "shadow-[0_0_15px_5px_rgba(161,195,241,0.7)]" : "shadow-lg"}`}
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
                   {/* 시간 설정 카드 텍스트 색상 */}
@@ -434,7 +434,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
                   onClick={() => setSelectedUnit("minutes")}
                   onDoubleClick={() => setMinutes(0)}
                   // 분 설정 카드 배경색 (그라데이션)
-                  className={`relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 select-none ${selectedUnit === "minutes" ? "shadow-[0_0_15px_5px_rgba(192,132,252,0.7)]" : "shadow-lg"}`}
+                  className={`relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 select-none ${selectedUnit === "minutes" ? "shadow-[0_0_15px_5px_rgba(161,195,241,0.7)]" : "shadow-lg"}`}
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
                   {/* 분 설정 카드 텍스트 색상 */}
@@ -460,7 +460,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
                   onClick={() => setSelectedUnit("seconds")}
                   onDoubleClick={() => setSeconds(0)}
                   // 초 설정 카드 배경색 (그라데이션)
-                  className={`relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 select-none ${selectedUnit === "seconds" ? "shadow-[0_0_15px_5px_rgba(192,132,252,0.7)]" : "shadow-lg"}`}
+                  className={`relative rounded-2xl bg-gradient-to-br from-[#A8C5FF] to-[#90B5F9] p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 select-none ${selectedUnit === "seconds" ? "shadow-[0_0_15px_5px_rgba(161,195,241,0.7)]" : "shadow-lg"}`}
                   style={{ width: "130px", height: "65px", borderRadius: "1.5rem" }}
                 >
                   {/* 초 설정 카드 텍스트 색상 */}
@@ -481,13 +481,13 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
                 <div style={{ width: "1rem" }} />
 
                 <div
-                  className="relative rounded-2xl shadow-lg flex flex-col items-center justify-center"
+                  className="relative rounded-2xl shadow-lg flex flex-col items-center justify-center ml-1"
                   style={{
                     width: "50px",
                     height: "65px",
                     borderRadius: "1.5rem",
                     // 화살표 버튼 배경색 (그라데이션)
-                    background: "linear-gradient(180deg,#C5A8FF,#90B5F9)",
+                    background: "linear-gradient(180deg,#C5A8FF,#C5A8FF)",
                     boxShadow: "0 10px 24px rgba(120,90,240,0.12)",
                     transform: "translateX(-6px)",
                   }}
