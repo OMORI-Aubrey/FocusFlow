@@ -283,7 +283,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
     const handleKeyDown = (e) => {
       if (!isSettingsOpen) return;
 
-      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter"].includes(e.key)) {
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter", "Escape"].includes(e.key)) {
         e.preventDefault();
       }
 
@@ -323,6 +323,14 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
         }
       } else if (e.key === "Enter") {
         setIsSettingsOpen(false);
+      } else if (e.key === "Escape") {
+        if (selectedUnit === 'hours') {
+          setHours(0);
+        } else if (selectedUnit === 'minutes') {
+          setMinutes(0);
+        } else if (selectedUnit === 'seconds') {
+          setSeconds(0);
+        }
       }
     };
 
