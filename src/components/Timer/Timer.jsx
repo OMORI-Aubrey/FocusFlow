@@ -77,7 +77,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
               setIsRunning(false); // Stop running only when settings are open
             }
             // eslint-disable-next-line react-hooks/exhaustive-deps
-          }, [hours, minutes, seconds, isSettingsOpen]);
+          }, [hours, minutes, seconds, isSettingsOpen, isFocusMode]);
 
           useEffect(() => {
             // Auto-start timer when switching modes
