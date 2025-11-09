@@ -412,7 +412,9 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
 
       if (e.code === 'Space') {
         e.preventDefault(); // Prevent scrolling
-        if (isRunning) {
+        if (isComplete) {
+          handleModeSwitch();
+        } else if (isRunning) {
           handlePause();
         } else {
           handleStart();
@@ -427,7 +429,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
     return () => {
       window.removeEventListener('keydown', handleGlobalKeyDown);
     };
-  }, [isRunning, isSettingsOpen, handlePause, handleStart, handleReset]);
+  }, [isRunning, isSettingsOpen, handlePause, handleStart, handleReset, isComplete, handleModeSwitch]);
 
   return (
     <div className="flex flex-col items-center" style={{ marginLeft: "-450px" }}>
