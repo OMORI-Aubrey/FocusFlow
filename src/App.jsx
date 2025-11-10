@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import './App.css';
 import Timer from './components/Timer/Timer';
 import ModeSwitch from './components/ModeSwitch/ModeSwitch';
+import TodoList from './components/Todo/TodoList';
 
 function App() {
   const [isFocusMode, setIsFocusMode] = useState(true);
@@ -31,6 +32,7 @@ function App() {
         setMinutes={setMinutes}
         setSeconds={setSeconds}
       />
+      <TodoList />
     </div >
   );
 }
