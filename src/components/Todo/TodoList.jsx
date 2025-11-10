@@ -91,7 +91,7 @@ const TodoList = () => {
 
         {/* Scrollable Lists Container */}
         <div className="flex-grow flex flex-col min-h-0">
-          {/* Incomplete Todos Scrollable Area (3/4 height) */}
+          {/* Incomplete Todos Scrollable Area */}
           <div className="flex flex-col min-h-0" style={{ flexBasis: '60%' }}>
             <h3 className="text-lg font-semibold mb-2 text-gray-700 flex-none">작업</h3>
             <ul className="space-y-2 overflow-y-auto flex-grow">
@@ -118,7 +118,7 @@ const TodoList = () => {
             </ul>
           </div>
 
-          {/* Completed Todos Scrollable Area (1/4 height) */}
+          {/* Completed Todos Scrollable Area */}
           <div className="flex flex-col min-h-0 pt-4" style={{ flexBasis: '40%' }}>
             <h3 className="text-lg font-semibold mb-2 text-gray-700 flex-none">완료</h3>
             <ul className="space-y-2 overflow-y-auto flex-grow">
