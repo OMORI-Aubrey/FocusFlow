@@ -100,7 +100,7 @@ const TodoList = () => {
                   <div className="flex items-center flex-grow min-w-0">
                     <input type="checkbox" checked={todo.done} onChange={() => handleToggleTodo(todo.id)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-3" />
                     {editingTodoId === todo.id ? (
-                      <input type="text" value={editingText} onChange={(e) => setEditingText(e.target.value)} onKeyPress={(e) => handleEditingKeyPress(e, todo.id)} className="flex-grow p-1 border border-gray-300 rounded-md" autoFocus />
+                      <input type="text" value={editingText} onChange={(e) => setEditingText(e.target.value)} onKeyPress={(e) => handleEditingKeyPress(e, todo.id)} className="flex-grow p-1 border border-gray-300 rounded-md text-gray-800" autoFocus />
                     ) : (
                       <span className="text-black overflow-hidden break-words">{todo.text}</span>
                     )}
