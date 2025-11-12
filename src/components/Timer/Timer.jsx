@@ -418,6 +418,11 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
       // Don't interfere with settings input
       if (isSettingsOpen) return;
 
+      // Ignore spacebar if an input field is focused
+      if (e.target.tagName === 'INPUT' && e.code === 'Space') {
+        return;
+      }
+
       if (e.code === 'Space') {
         e.preventDefault(); // Prevent scrolling
         if (isComplete) {

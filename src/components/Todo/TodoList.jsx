@@ -102,7 +102,7 @@ const TodoList = () => {
                     {editingTodoId === todo.id ? (
                       <input type="text" value={editingText} onChange={(e) => setEditingText(e.target.value)} onKeyPress={(e) => handleEditingKeyPress(e, todo.id)} className="flex-grow p-1 border border-gray-300 rounded-md" autoFocus />
                     ) : (
-                      <span className="text-black truncate">{todo.text}</span>
+                      <span className="text-black overflow-hidden break-words">{todo.text}</span>
                     )}
                   </div>
                   <div className="flex items-center ml-4 flex-none">
@@ -126,7 +126,7 @@ const TodoList = () => {
                 <li key={todo.id} className="flex items-center justify-between p-2 bg-white rounded-md shadow-sm opacity-60">
                   <div className="flex items-center flex-grow min-w-0">
                     <input type="checkbox" checked={todo.done} onChange={() => handleToggleTodo(todo.id)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-3" />
-                    <span className="text-gray-500 truncate">{todo.text}</span>
+                    <span className="text-gray-500 overflow-hidden break-words">{todo.text}</span>
                   </div>
                   <div className="flex items-center ml-4 flex-none">
                     <button onClick={() => handleDeleteTodo(todo.id)} className="text-red-500 hover:text-red-700 text-sm font-semibold">삭제</button>
