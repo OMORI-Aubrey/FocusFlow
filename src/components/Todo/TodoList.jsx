@@ -63,7 +63,7 @@ const TodoList = () => {
   const completeTodos = todos.filter(todo => todo.done);
 
   return (
-    <div className="absolute right-0 top-0 h-full w-100 bg-gray-50 flex flex-col border-l border-gray-200">
+    <div className="absolute right-0 top-0 h-full w-100 bg-[#F5F5F5] flex flex-col border-l border-gray-200">
       {/* Top Section */}
       <div className="flex-none h-20 p-4">
         통계
@@ -77,7 +77,7 @@ const TodoList = () => {
             type="text"
             value={inputText}
             onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-black"
             placeholder="새로운 할 일 추가..."
           />
