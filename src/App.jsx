@@ -9,6 +9,7 @@ function App() {
   const [isFocusMode, setIsFocusMode] = useState(true);
   const [focusTime, setFocusTime] = useState({ h: 0, m: 25, s: 0 });
   const [restTime, setRestTime] = useState({ h: 0, m: 5, s: 0 });
+  const [totalFocusTime, setTotalFocusTime] = useState(0); // in seconds
 
   const { h, m, s } = isFocusMode ? focusTime : restTime;
   const setCurrentTime = isFocusMode ? setFocusTime : setRestTime;
@@ -31,8 +32,9 @@ function App() {
         setHours={setHours}
         setMinutes={setMinutes}
         setSeconds={setSeconds}
+        setTotalFocusTime={setTotalFocusTime}
       />
-      <TodoList />
+      <TodoList totalFocusTime={totalFocusTime} />
     </div >
   );
 }

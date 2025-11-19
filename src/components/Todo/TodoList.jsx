@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import Statistics from '../Statistics/Statistics';
 
-const TodoList = () => {
+const TodoList = ({ totalFocusTime }) => {
   // State Management
   const [todos, setTodos] = useState([]);
   const [inputText, setInputText] = useState('');
@@ -71,7 +72,7 @@ const TodoList = () => {
     <div className="absolute right-0 top-0 h-full w-100 bg-[#F5F5F5] flex flex-col border-l border-gray-200">
       {/* Top Section */}
       <div className="flex-none h-20 p-4">
-        통계
+        <Statistics totalFocusTime={totalFocusTime} />
       </div>
 
       {/* Middle Section - TodoList */}
@@ -98,7 +99,7 @@ const TodoList = () => {
         <div className="flex-grow flex flex-col min-h-0">
           {/* Incomplete Todos Scrollable Area */}
           <div className="flex flex-col min-h-0" style={{ flexBasis: '60%' }}>
-            <h3 className="text-lg font-semibold mb-2 text-gray-700 flex-none">작업</h3>
+            <h3 className="text-lg font-semibold mb-2 text-gray-700 flex-none">할일</h3>
             <ul className="space-y-2 overflow-y-auto flex-grow">
               {incompleteTodos.map(todo => (
                 <li key={todo.id} className="flex items-center justify-between p-2 bg-white rounded-md shadow-sm">
