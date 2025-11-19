@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Noizes from '../Sounds/Sounds';
 
 const TodoList = () => {
   // State Management
@@ -150,7 +151,7 @@ const TodoList = () => {
 
       {/* Bottom Section */}
       <div className="flex-none h-40 p-4">
-        소리
+        <Noizes />
       </div>
     </div>
   );
