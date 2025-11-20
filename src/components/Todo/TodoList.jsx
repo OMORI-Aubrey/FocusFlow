@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Statistics from '../Statistics/Statistics';
+import { loadState, saveState } from '../../utils/storageUtils';
+
+const TODOS_STATE_KEY = 'todosState';
 
 const TodoList = ({ totalFocusTime }) => {
   // State Management
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState(loadState(TODOS_STATE_KEY) || []);
   const [inputText, setInputText] = useState('');
   const [editingTodoId, setEditingTodoId] = useState(null);
   const [editingText, setEditingText] = useState('');
+
+  useEffect(() => {
+    saveState(TODOS_STATE_KEY, todos);
+  }, [todos]);
 
   // Handler Functions
   const handleInputChange = (e) => {
