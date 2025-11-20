@@ -1,3 +1,4 @@
+// 로컬 스토리지에서 상태를 불러오는 함수
 export const loadState = (key) => {
   try {
     const serializedState = localStorage.getItem(key);
@@ -11,6 +12,7 @@ export const loadState = (key) => {
   }
 };
 
+// 로컬 스토리지에 상태를 저장하는 함수
 export const saveState = (key, state) => {
   try {
     const serializedState = JSON.stringify(state);
