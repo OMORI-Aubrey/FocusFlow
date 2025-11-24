@@ -38,6 +38,17 @@ const CalendarModal = ({ isOpen, onRequestClose, dailyStats }) => {
     return null;
   };
 
+  const tileClassName = ({ date, view }) => {
+    if (view === 'month') {
+      if (date.getDay() === 0) {
+        return 'sunday';
+      }
+      if (date.getDay() === 6) {
+        return 'saturday';
+      }
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -66,6 +77,7 @@ const CalendarModal = ({ isOpen, onRequestClose, dailyStats }) => {
       <h2 className="text-xl font-bold mb-4 text-gray-800">집중 시간 달력</h2>
       <Calendar
         tileContent={tileContent}
+        tileClassName={tileClassName}
         calendarType="gregory"
         maxDetail="month"
         navigationLabel={({ date, view, label }) => (

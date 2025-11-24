@@ -35,3 +35,22 @@
   width: 100%;
   text-align: center;
 }
+
+/* Darken weekday labels */
+.react-calendar__month-view__weekdays__weekday abbr {
+  color: #333;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+/* Color for Sunday label and dates */
+.react-calendar__month-view__weekdays__weekday:first-child abbr,
+.sunday {
+  color: red;
+}
+
+/* Color for Saturday label and dates */
+.react-calendar__month-view__weekdays__weekday:last-child abbr,
+.saturday {
+  color: blue;
+}
