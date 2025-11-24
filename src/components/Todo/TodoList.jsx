@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import Noizes from '../Sounds/Sounds';
 import React, { useState, useEffect } from 'react';
+import Noizes from '../Sounds/Sounds';
 import Statistics from '../Statistics/Statistics';
 import CalendarModal from '../Calendar/CalendarModal'; // Import CalendarModal
 import { Calendar as CalendarIcon } from 'lucide-react'; // Import CalendarIcon
