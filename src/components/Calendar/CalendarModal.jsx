@@ -2,6 +2,7 @@ import React from 'react';
 import Modal from 'react-modal';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import './CalendarModal.css'; // Import custom styles
 
 // Helper to format seconds into a readable string
 const formatTime = (seconds) => {
@@ -21,13 +22,14 @@ const getDateString = (date) => {
 }
 
 const CalendarModal = ({ isOpen, onRequestClose, dailyStats }) => {
+
   const tileContent = ({ date, view }) => {
     if (view === 'month') {
       const dateStr = getDateString(date);
       const focusTime = dailyStats[dateStr];
       if (focusTime && focusTime > 0) {
         return (
-          <div className="text-xs text-blue-500 mt-1">
+          <div className="focus-time-display">
             {formatTime(focusTime)}
           </div>
         );
