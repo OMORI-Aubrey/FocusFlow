@@ -14,12 +14,22 @@ function App() {
     focusTime: { h: 0, m: 25, s: 0 },
     restTime: { h: 0, m: 5, s: 0 },
     totalFocusTime: 0,
+    lastUpdated: new Date().toLocaleDateString(),
   };
 
   const [isFocusMode, setIsFocusMode] = useState(initialState.isFocusMode);
   const [focusTime, setFocusTime] = useState(initialState.focusTime);
   const [restTime, setRestTime] = useState(initialState.restTime);
   const [totalFocusTime, setTotalFocusTime] = useState(initialState.totalFocusTime); // in seconds
+  const [lastUpdated, setLastUpdated] = useState(initialState.lastUpdated);
+
+  useEffect(() => {
+    const today = new Date().toLocaleDateString();
+    if (lastUpdated !== today) {
+      setTotalFocusTime(0);
+      setLastUpdated(today);
+    }
+  }, []); // Runs only on mount
 
   useEffect(() => {
     saveState(APP_STATE_KEY, {
@@ -27,8 +37,9 @@ function App() {
       focusTime,
       restTime,
       totalFocusTime,
+      lastUpdated,
     });
-  }, [isFocusMode, focusTime, restTime, totalFocusTime]);
+  }, [isFocusMode, focusTime, restTime, totalFocusTime, lastUpdated]);
 
   const { h, m, s } = isFocusMode ? focusTime : restTime;
   const setCurrentTime = isFocusMode ? setFocusTime : setRestTime;
