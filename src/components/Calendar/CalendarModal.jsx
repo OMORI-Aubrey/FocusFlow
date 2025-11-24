@@ -84,6 +84,7 @@ const CalendarModal = ({ isOpen, onRequestClose, dailyStats }) => {
           <span>{label}</span>
         )}
         value={null}
+        showFixedNumberOfWeeks={true}
       />
     </Modal>
   );
