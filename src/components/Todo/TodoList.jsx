@@ -129,7 +129,7 @@ const TodoList = ({ dailyStats }) => { // Changed prop from totalFocusTime to da
         <div className="flex-grow flex flex-col min-h-0">
           {/* Incomplete Todos Scrollable Area */}
           <div className="flex flex-col min-h-0" style={{ flexBasis: '60%' }}>
-            <h3 className="text-lg font-semibold mb-2 text-gray-700 flex-none">할일</h3>
+            <h3 className="text-lg font-semibold mb-2 text-gray-700 flex-none">할 일</h3>
             <ul className="space-y-2 overflow-y-auto flex-grow">
               {incompleteTodos.map(todo => (
                 <li key={todo.id} className="flex items-center justify-between p-2 bg-white rounded-md shadow-sm">
