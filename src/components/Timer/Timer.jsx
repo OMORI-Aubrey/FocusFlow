@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 
-export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, seconds, setHours, setMinutes, setSeconds, setTotalFocusTime }) {
+export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, seconds, setHours, setMinutes, setSeconds, addFocusTime }) {
 
   // timeLeft는 밀리초 단위
   const [timeLeft, setTimeLeft] = useState(() => (hours * 3600 + minutes * 60 + seconds) * 1000);
@@ -43,7 +43,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
     if (isRunning && timeLeft > 0) {
       intervalRef.current = setInterval(() => {
         if (isFocusMode) {
-          setTotalFocusTime(prev => prev + 0.05);
+          addFocusTime(0.05);
         }
         setTimeLeft((prev) => {
           if (prev <= 50) {
@@ -65,7 +65,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, timeLeft, isFocusMode, setTotalFocusTime]);
+  }, [isRunning, timeLeft, isFocusMode, addFocusTime]);
 
   // Helper: clamp values
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
