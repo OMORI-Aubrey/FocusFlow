@@ -1,0 +1,56 @@
+/* Make calendar numbers darker */
+.react-calendar__month-view__days__day {
+  color: #333;
+}
+
+/* Make numbers of neighboring months lighter to de-emphasize them */
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: #ccc;
+}
+
+/* Make year/month and navigation arrows bolder */
+.react-calendar__navigation button {
+  font-weight: bold;
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: #e6e6e6;
+}
+
+.react-calendar__navigation__label {
+  font-weight: bold;
+  pointer-events: none; /* Disable click on the year/month label button */
+  color: black;
+}
+
+/* Style for the focus time display */
+.focus-time-display {
+  font-size: 0.7rem;
+  color: #3b82f6; /* A shade of blue */
+  margin-top: 2px;
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+/* Darken weekday labels */
+.react-calendar__month-view__weekdays__weekday abbr {
+  color: #333;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+/* Color for Sunday label and dates */
+.react-calendar__month-view__weekdays__weekday:first-child abbr,
+.sunday {
+  color: red;
+}
+
+/* Color for Saturday label and dates */
+.react-calendar__month-view__weekdays__weekday:last-child abbr,
+.saturday {
+  color: blue;
+}

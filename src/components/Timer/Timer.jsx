@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 
 
-export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, seconds, setHours, setMinutes, setSeconds }) {
+export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, seconds, setHours, setMinutes, setSeconds, addFocusTime }) {
 
   // timeLeft는 밀리초 단위
   const [timeLeft, setTimeLeft] = useState(() => (hours * 3600 + minutes * 60 + seconds) * 1000);
@@ -42,6 +43,9 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
   useEffect(() => {
     if (isRunning && timeLeft > 0) {
       intervalRef.current = setInterval(() => {
+        if (isFocusMode) {
+          addFocusTime(0.05);
+        }
         setTimeLeft((prev) => {
           if (prev <= 50) {
             setIsRunning(false);
@@ -62,10 +66,9 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, timeLeft]);
+  }, [isRunning, timeLeft, isFocusMode, addFocusTime]);
 
-  // Helper: clamp values
-  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
 
           // When hours/minutes/seconds change, immediately update timeLeft (live preview)
           useEffect(() => {
@@ -130,27 +133,7 @@ export default function Timer({ isFocusMode, setIsFocusMode, hours, minutes, sec
       : (isComplete ? 0 : (totalTime > 0 ? (timeLeft / totalTime) * 100 : 100));
   }
 
-  // Input change handlers that guard against NaN and apply clamps
-  const onHoursChange = (value) => {
-    const n = parseInt(value);
-    if (isNaN(n)) {
-      setHours(0);
-    } else if (n >= 24) {
-      setHours(24);
-      setMinutes(0);
-      setSeconds(0);
-    } else {
-      setHours(n);
-    }
-  };
-  const onMinutesChange = (value) => {
-    const n = parseInt(value);
-    setMinutes(isNaN(n) ? 0 : clamp(n, 0, 59));
-  };
-  const onSecondsChange = (value) => {
-    const n = parseInt(value);
-    setSeconds(isNaN(n) ? 0 : clamp(n, 0, 59));
-  };
+
 
   const handleIncrement = () => {
     setChangeDirection("increment");

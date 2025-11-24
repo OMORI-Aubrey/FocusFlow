@@ -1,14 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import './App.css';
 import Timer from './components/Timer/Timer';
 import ModeSwitch from './components/ModeSwitch/ModeSwitch';
 import TodoList from './components/Todo/TodoList';
+import { loadState, saveState } from './utils/storageUtils';
+
+const APP_STATE_KEY = 'focusFlowState';
+
+// Helper to get date in YYYY-MM-DD format
+const getTodayDateString = () => {
+  const today = new Date();
+  return today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+}
 
 function App() {
-  const [isFocusMode, setIsFocusMode] = useState(true);
-  const [focusTime, setFocusTime] = useState({ h: 0, m: 25, s: 0 });
-  const [restTime, setRestTime] = useState({ h: 0, m: 5, s: 0 });
+  const initialState = loadState(APP_STATE_KEY) || {
+    isFocusMode: true,
+    focusTime: { h: 0, m: 25, s: 0 },
+    restTime: { h: 0, m: 5, s: 0 },
+    dailyStats: {},
+  };
+
+  const [isFocusMode, setIsFocusMode] = useState(initialState.isFocusMode);
+  const [focusTime, setFocusTime] = useState(initialState.focusTime);
+  const [restTime, setRestTime] = useState(initialState.restTime);
+  const [dailyStats, setDailyStats] = useState(initialState.dailyStats || {});
+
+  useEffect(() => {
+    saveState(APP_STATE_KEY, {
+      isFocusMode,
+      focusTime,
+      restTime,
+      dailyStats,
+    });
+  }, [isFocusMode, focusTime, restTime, dailyStats]);
+
+  const addFocusTime = (seconds) => {
+    const todayStr = getTodayDateString();
+    setDailyStats(prevStats => ({
+      ...prevStats,
+      [todayStr]: (prevStats[todayStr] || 0) + seconds,
+    }));
+  };
 
   const { h, m, s } = isFocusMode ? focusTime : restTime;
   const setCurrentTime = isFocusMode ? setFocusTime : setRestTime;
@@ -31,8 +64,9 @@ function App() {
         setHours={setHours}
         setMinutes={setMinutes}
         setSeconds={setSeconds}
+        addFocusTime={addFocusTime}
       />
-      <TodoList />
+      <TodoList dailyStats={dailyStats} />
     </div >
   );
 }
