@@ -67,6 +67,11 @@ const CalendarModal = ({ isOpen, onRequestClose, dailyStats }) => {
       <Calendar
         tileContent={tileContent}
         calendarType="gregory"
+        maxDetail="month"
+        navigationLabel={({ date, view, label }) => (
+          <span>{label}</span>
+        )}
+        value={null}
       />
     </Modal>
   );

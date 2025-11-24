@@ -20,6 +20,8 @@
 
 .react-calendar__navigation__label {
   font-weight: bold;
+  pointer-events: none; /* Disable click on the year/month label button */
+  color: black;
 }
 
 /* Style for the focus time display */
