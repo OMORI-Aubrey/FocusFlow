@@ -3,6 +3,9 @@ import React, { useState, useEffect, useRef } from 'react';
 const soundData = [
   { name: '비', url: 'https://www.soundjay.com/nature/rain-01.mp3' },
   { name: '장작', url: 'https://www.soundjay.com/nature/campfire-1.mp3' },
+  { name: '시냇물', url: 'https://www.soundjay.com/nature/stream-1.mp3' },
+  { name: '파도', url: 'https://www.soundjay.com/nature/ocean-waves-1.mp3' },
+  { name: '바람', url: 'https://www.soundjay.com/nature/wind-1.mp3' },
 ];
 
 const Noizes = () => {
