@@ -181,7 +181,7 @@ const TodoList = ({ dailyStats }) => { // Changed prop from totalFocusTime to da
       </div>
 
       {/* Bottom Section */}
-      <div className="flex-none h-40 p-4">
+      <div className="flex-none h-35 p-4">
         <Noizes />
       </div>
     </div>
