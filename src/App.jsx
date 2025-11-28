@@ -3,6 +3,7 @@ import './App.css';
 import Timer from './components/Timer/Timer';
 import ModeSwitch from './components/ModeSwitch/ModeSwitch';
 import TodoList from './components/Todo/TodoList';
+import HelpButton from './components/Help/HelpButton';
 import { loadState, saveState } from './utils/storageUtils';
 
 const APP_STATE_KEY = 'focusFlowState';
@@ -67,6 +68,7 @@ function App() {
         addFocusTime={addFocusTime}
       />
       <TodoList dailyStats={dailyStats} />
+      <HelpButton />
     </div >
   );
 }
