@@ -3,31 +3,55 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const guideSlides = [
   {
-    image: '/images/timer.png',
+    image: 'src/assets/images/mainTimer.png',
     text: '중앙의 타이머를 사용하여 집중 시간을 측정하세요. 시작 버튼을 눌러 타이머를 작동시킬 수 있습니다.',
   },
   {
-    image: '/images/todo.png',
+    image: 'src/assets/images/switch.gif',
+    text: '화면 왼쪽 위에 있는 스위치를 눌러 모드를 전환하세요. F는 집중모드, R은 휴식모드 입니다.',
+  },
+  {
+    image: 'src/assets/images/toDoListAdd.gif',
     text: '오른쪽의 투두리스트에 오늘 할 일을 추가하고 관리할 수 있습니다. 완료한 항목은 체크하세요.',
   },
   {
-    image: '/images/calendar.png',
-    text: '왼쪽 상단의 캘린더 아이콘을 클릭하여 날짜별 통계를 확인하고, 과거의 집중도를 돌아볼 수 있습니다.',
+    image: 'src/assets/images/calenderBtn.png',
+    text: '투두리스트 왼쪽 상단의 캘린더 아이콘을 클릭하여 날짜별 통계를 확인할 수 있습니다.',
   },
 ];
 
 const hotkeySlides = [
   {
-    image: '/images/keyboard.png',
-    text: 'Spacebar: 타이머를 시작하거나 멈춥니다.',
+    image: 'src/assets/images/timerStartPauseSpacebar.gif',
+    text: 'Spacebar: 타이머 시작/멈춤',
   },
   {
-    image: '/images/keyboard.png',
-    text: 'Ctrl + R: 타이머를 초기화합니다.',
+    image: 'src/assets/images/timerStopEsc.gif',
+    text: 'Esc: [타이머 작동 중] 타이머 초기화 ',
   },
   {
-    image: '/images/keyboard.png',
-    text: 'Esc: 열려있는 팝업 창을 닫습니다.',
+    image: 'src/assets/images/timerSelectBtnsClick.gif',
+    text: '[시간 설정] 마우스로 버튼 선택 후 화살표를 눌러 시간 조정',
+  },
+  {
+    image: 'src/assets/images/timerSelectHMSArrow.gif',
+    text: '[시간 설정] 왼쪽, 오른쪽 방향키: 시간, 분, 초 선택',
+  },
+  {
+    image: 'src/assets/images/timerTimeUpDownArrow.gif',
+    text: '[시간 설정] 위, 아래 방향키: 시간 올리기, 내리기',
+  },
+  {
+    image: 'src/assets/images/timerSetTimeKeyboard.gif',
+    text: '[시간 설정] 키보드로 숫자를 입력하여 원하는 시간 설정',
+  },
+  {
+    image: 'src/assets/images/timerSetTimeZeroEsc.gif',
+    text: '[시간 설정] Esc: 선택된 시간 0으로 만들기',
+  },
+  {
+    image: 'src/assets/images/timerTimeSetDoneEnter.gif',
+    text: '[시간 설정] Enter: 시간 선택 완료',
   },
 ];
 
