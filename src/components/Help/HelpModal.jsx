@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const guideSlides = [
   {
@@ -39,20 +40,40 @@ const content = {
     title: '타이머 조작키',
     slides: hotkeySlides,
   }
-}
+};
+
+const variants = {
+  enter: (direction) => ({
+    x: direction > 0 ? '100%' : '-100%',
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction) => ({
+    x: direction < 0 ? '100%' : '-100%',
+    opacity: 0,
+  }),
+};
 
 const HelpModal = ({ contentType, closeModal }) => {
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [page, setPage] = useState(0);
+  const [direction, setDirection] = useState(0);
 
   const { title, slides } = content[contentType];
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+  const paginate = (newDirection) => {
+    setDirection(newDirection);
+    setPage((prevPage) => {
+      const nextPage = prevPage + newDirection;
+      if (nextPage < 0) return slides.length - 1;
+      if (nextPage >= slides.length) return 0;
+      return nextPage;
+    });
   };
 
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-  };
+  const slideIndex = page;
 
   return (
     <div
@@ -61,27 +82,45 @@ const HelpModal = ({ contentType, closeModal }) => {
       onClick={closeModal}
     >
       <div
-        className="bg-white text-black p-5 rounded-lg max-w-md w-11/12 relative shadow-xl text-center"
+        className="bg-white text-black p-5 rounded-lg max-w-md w-11/12 relative shadow-xl text-center flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          className="absolute top-2 right-4 bg-transparent border-none text-3xl cursor-pointer text-red-500"
+          className="absolute top-2 right-4 bg-transparent border-none text-3xl cursor-pointer text-red-500 z-10"
           onClick={closeModal}
         >
           &times;
         </button>
         <h2 className="text-2xl font-bold mb-4">{title}</h2>
-        <div className="flex items-center justify-between">
-          <button className="bg-transparent border-none text-4xl cursor-pointer p-2 text-gray-700 select-none" onClick={prevSlide}>
+        <div className="flex items-center justify-between flex-grow">
+          <div className="bg-transparent border-none text-4xl cursor-pointer p-2 text-gray-700 select-none z-10" onClick={() => paginate(-1)}>
             &#10094;
-          </button>
-          <div className="flex flex-col items-center">
-            <img src={slides[currentSlide].image} alt={`Slide ${currentSlide + 1}`} className="max-w-full h-auto max-h-72 mb-4" />
-            <p className="text-base text-gray-700 min-h-12">{slides[currentSlide].text}</p>
           </div>
-          <button className="bg-transparent border-none text-4xl cursor-pointer p-2 text-gray-700 select-none" onClick={nextSlide}>
+
+          <div className="relative flex-grow h-80 overflow-hidden">
+            <AnimatePresence initial={false} custom={direction}>
+              <motion.div
+                key={page}
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: 'spring', stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 },
+                }}
+                className="absolute w-full h-full flex flex-col items-center justify-center"
+              >
+                <img src={slides[slideIndex].image} alt={`Slide ${slideIndex + 1}`} className="max-w-full h-auto max-h-60 mb-4" />
+                <p className="text-base text-gray-700 min-h-12 px-4">{slides[slideIndex].text}</p>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          <div className="bg-transparent border-none text-4xl cursor-pointer p-2 text-gray-700 select-none z-10" onClick={() => paginate(1)}>
             &#10095;
-          </button>
+          </div>
         </div>
       </div>
     </div>
