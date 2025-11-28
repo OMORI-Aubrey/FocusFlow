@@ -112,7 +112,7 @@ const HelpModal = ({ contentType, closeModal }) => {
                 }}
                 className="absolute w-full h-full flex flex-col items-center justify-center"
               >
-                <img src={slides[slideIndex].image} alt={`Slide ${slideIndex + 1}`} className="max-w-full h-auto max-h-60 mb-4" />
+                <img src={slides[slideIndex].image} alt={`Slide ${slideIndex + 1}`} className="h-60 w-full object-cover mb-4" />
                 <p className="text-base text-gray-700 min-h-12 px-4">{slides[slideIndex].text}</p>
               </motion.div>
             </AnimatePresence>
