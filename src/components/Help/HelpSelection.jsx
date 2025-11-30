@@ -17,7 +17,7 @@ const HelpSelection = ({ onSelect, closeModal }) => {
             onClick={() => onSelect('guide')}
             className="bg-blue-400 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-lg transition-colors"
           >
-            사용법 가이드
+            가이드
           </button>
           <button
             onClick={() => onSelect('hotkey')}

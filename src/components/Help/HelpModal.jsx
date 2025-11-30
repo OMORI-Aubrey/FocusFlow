@@ -15,6 +15,10 @@ const guideSlides = [
     text: '오른쪽의 투두리스트에 오늘 할 일을 추가하고 관리할 수 있습니다. 완료한 항목은 체크하세요.',
   },
   {
+    image: 'src/assets/images/soundPlay.gif',
+    text: '화면 오른쪽 하단에 재생 버튼을 눌러 자연 소리를 재생하세요. 원하는 소리를 직접 선택할 수 있습니다.',
+  },
+  {
     image: 'src/assets/images/calenderBtn.png',
     text: '투두리스트 왼쪽 상단의 캘린더 아이콘을 클릭하여 날짜별 통계를 확인할 수 있습니다.',
   },
@@ -116,12 +120,12 @@ const HelpModal = ({ contentType, closeModal }) => {
           &times;
         </button>
         <h2 className="text-2xl font-bold mb-4">{title}</h2>
-        <div className="flex items-center justify-between flex-grow">
+        <div className="flex items-center justify-between grow">
           <div className="bg-transparent border-none text-4xl cursor-pointer p-2 text-gray-700 select-none z-10" onClick={() => paginate(-1)}>
             &#10094;
           </div>
 
-          <div className="relative flex-grow h-80 overflow-hidden">
+          <div className="relative grow h-80 overflow-hidden">
             <AnimatePresence initial={false} custom={direction}>
               <motion.div
                 key={page}
