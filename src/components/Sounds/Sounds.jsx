@@ -39,6 +39,16 @@ const Noizes = () => {
     setIsPlaying(!isPlaying);
   };
 
+  const handleSoundChange = (newIndex) => {
+    if (soundIndex === newIndex) return;
+
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+    setSoundIndex(newIndex);
+  };
+
   return (
     <div>
       <audio ref={audioRef} loop src={soundData[soundIndex].url} />
@@ -57,7 +67,7 @@ const Noizes = () => {
                                 name="soundType"
                                 value={index}
                                 checked={soundIndex === index}
-                                onChange={(e) => setSoundIndex(parseInt(e.target.value, 10))}
+                                onChange={(e) => handleSoundChange(parseInt(e.target.value, 10))}
                                 className="mr-1"
                             />
                             <label htmlFor={`sound-${index}`} className="text-gray-900">{sound.name}</label>
